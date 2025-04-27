@@ -57,8 +57,6 @@ function setup() {
     });
 }
 
-
-
 function windowResized() {
     let aspectRatio = windowWidth / windowHeight;
     let canvasSize;
@@ -147,11 +145,13 @@ function drawLetter(letter, x, y, size, opacity = 255) {
     translate(x, y);
 
     let padding = 1;
-    let dynamicStroke = max(size * 0.012, 0.5); // Ajuste dinámico de grosor
+    let dynamicStroke = max(size * 0.012, 0.5);
     stroke(180);
     strokeWeight(dynamicStroke);
     noFill();
-    rect(padding, padding, size - padding * 2, size - padding * 2, 8);
+
+    let dynamicRadius = constrain(size * 0.1, 4, 16); // Ajuste controlado del radio
+    rect(padding, padding, size - padding * 2, size - padding * 2, dynamicRadius);
 
     if (letter !== "empty") {
         fill(0, opacity);
@@ -160,13 +160,14 @@ function drawLetter(letter, x, y, size, opacity = 255) {
         if (points) {
             for (let idx of points) {
                 let pos = nodePositions[idx];
-                let pointSize = max(size * 0.1, 3); // Mínimo tamaño de punto
+                let pointSize = max(size * 0.1, 3);
                 ellipse(pos.x * size, size - pos.y * size, pointSize);
             }
         }
     }
     pop();
 }
+
 
 function draw() {
     background(255);
