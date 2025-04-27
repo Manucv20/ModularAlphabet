@@ -10,7 +10,7 @@ let letterMapping = {
 };
 
 let nodePositions;
-let word = "EJERCICIO DE ALFABETO MODULAR";
+let word = "Espero que tengas un buen dia";
 let baseSize = 80;
 let size;
 let spacing;
