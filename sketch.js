@@ -23,63 +23,33 @@ let lineHeight;
 let canvas;
 
 function setup() {
-    canvas = createCanvas(windowWidth, windowHeight);
-    canvas.style('pointer-events', 'none');
-    canvas.style('z-index', '-1');
+    let aspectRatio = windowWidth / windowHeight;
+    let canvasSize;
+
+    if (aspectRatio > 1.2) {
+        // Pantalla ancha (ordenador)
+        canvasSize = min(windowWidth * 0.92, windowHeight * 0.85);
+    } else {
+        // Pantalla estrecha (móvil, tablet)
+        canvasSize = min(windowWidth * 0.9, windowHeight * 0.7);
+    }
+
+    canvas = createCanvas(canvasSize, canvasSize);
+    canvas.parent('canvas-container');
+
     background(255);
     setupNodePositions();
     prepareWord(word);
 
-    textInput = createInput('HOLA MUNDO MODULAR');
-    textInput.style('position', 'fixed');
-    textInput.style('top', '20px');
-    textInput.style('right', '180px');
-    textInput.style('padding', '8px 14px');
-    textInput.style('font-family', 'Inter, sans-serif');
-    textInput.style('font-size', '14px');
-    textInput.style('border', '1px solid #ccc');
-    textInput.style('border-radius', '8px');
-    textInput.style('min-width', '200px');
-    textInput.style('z-index', '100');
+    textInput = select('#textInput');
+    generateButton = select('#generateButton');
+    saveButton = select('#saveButton');
 
-    generateButton = createButton('Generar');
-    generateButton.style('position', 'fixed');
-    generateButton.style('top', '20px');
-    generateButton.style('right', '20px');
-    generateButton.style('padding', '8px 14px');
-    generateButton.style('background-color', '#0ff');
-    generateButton.style('color', '#111');
-    generateButton.style('font-family', 'Inter, sans-serif');
-    generateButton.style('font-size', '14px');
-    generateButton.style('border', 'none');
-    generateButton.style('border-radius', '8px');
-    generateButton.style('cursor', 'pointer');
-    generateButton.style('box-shadow', '0 2px 6px rgba(0,0,0,0.1)');
-    generateButton.style('z-index', '100');
     generateButton.mousePressed(() => {
         word = textInput.value().toUpperCase();
         prepareWord(word);
     });
 
-    saveButton = createButton('Descargar Imagen');
-    saveButton.style('position', 'fixed');
-    saveButton.style('top', '20px');
-    saveButton.style('left', '20px');
-    saveButton.style('padding', '8px 14px');
-    saveButton.style('background-color', '#ffffff');
-    saveButton.style('color', '#333');
-    saveButton.style('border', '1px solid #ccc');
-    saveButton.style('border-radius', '8px');
-    saveButton.style('cursor', 'pointer');
-    saveButton.style('box-shadow', '0 2px 6px rgba(0, 0, 0, 0.1)');
-    saveButton.style('font-family', 'Inter, sans-serif');
-    saveButton.style('font-size', '14px');
-    saveButton.style('min-width', '140px');
-    saveButton.style('min-height', '42px');
-    saveButton.style('display', 'flex');
-    saveButton.style('align-items', 'center');
-    saveButton.style('justify-content', 'center');
-    saveButton.style('z-index', '100');
     saveButton.mousePressed(() => {
         saveCanvas('alfabeto_modular', 'png');
         feedbackText = '¡Guardado!';
@@ -87,8 +57,19 @@ function setup() {
     });
 }
 
+
+
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    let aspectRatio = windowWidth / windowHeight;
+    let canvasSize;
+
+    if (aspectRatio > 1.2) {
+        canvasSize = min(windowWidth * 0.92, windowHeight * 0.85);
+    } else {
+        canvasSize = min(windowWidth * 0.9, windowHeight * 0.7);
+    }
+
+    resizeCanvas(canvasSize, canvasSize);
     prepareWord(word);
 }
 
@@ -164,12 +145,13 @@ function prepareWord(word) {
 function drawLetter(letter, x, y, size, opacity = 255) {
     push();
     translate(x, y);
-    stroke(180);
-    strokeWeight(1);
-    noFill();
-    let padding = 1; // margen interno pequeño
-    rect(padding, padding, size - padding * 2, size - padding * 2, 8);
 
+    let padding = 1;
+    let dynamicStroke = max(size * 0.012, 0.5); // Ajuste dinámico de grosor
+    stroke(180);
+    strokeWeight(dynamicStroke);
+    noFill();
+    rect(padding, padding, size - padding * 2, size - padding * 2, 8);
 
     if (letter !== "empty") {
         fill(0, opacity);
@@ -178,7 +160,8 @@ function drawLetter(letter, x, y, size, opacity = 255) {
         if (points) {
             for (let idx of points) {
                 let pos = nodePositions[idx];
-                ellipse(pos.x * size, size - pos.y * size, size * 0.1);
+                let pointSize = max(size * 0.1, 3); // Mínimo tamaño de punto
+                ellipse(pos.x * size, size - pos.y * size, pointSize);
             }
         }
     }
