@@ -259,7 +259,8 @@ function prepareWord(word) {
     let words = word.split(' ');
     let lines = [[]];
     let currentLineLength = 0;
-    let maxWidth = width * 0.8; // Ancho máximo del texto
+    // Reducimos el ancho máximo para forzar saltos de línea y facilitar multi-columnas
+    let maxWidth = width * 0.45;
 
     // Algoritmo de ajuste de línea (Word wrapping)
     for (let w of words) {
@@ -278,52 +279,98 @@ function prepareWord(word) {
         currentLineLength += wordLength + 1;
     }
 
-    // Limpieza de espacios vacíos redundantes al final de la última línea
-    if (lines[lines.length - 1][lines[lines.length - 1].length - 1] === 'empty') {
+    // Limpieza de espacios vacíos redundantes
+    if (lines[lines.length - 1].length > 0 && lines[lines.length - 1][lines[lines.length - 1].length - 1] === 'empty') {
         lines[lines.length - 1].pop();
     }
-
-    // Eliminar 'empty' al inicio o al final de todas las líneas para limpiar bordes
     for (let i = 0; i < lines.length; i++) {
-        if (lines[i][0] === 'empty') lines[i].shift();
-        if (lines[i][lines[i].length - 1] === 'empty') lines[i].pop();
+        if (lines[i].length > 0 && lines[i][0] === 'empty') lines[i].shift();
+        if (lines[i].length > 0 && lines[i][lines[i].length - 1] === 'empty') lines[i].pop();
+    }
+    // Eliminar líneas vacías que puedan haber quedado
+    lines = lines.filter(l => l.length > 0);
+    if (lines.length === 0) return;
+
+
+    // ==========================================
+    // LÓGICA MULTI-COLUMNA
+    // ==========================================
+    const MAX_ROWS = 16; // CORREGIDO: 16 filas máximo
+    let columns = [];
+
+    // Dividir las líneas en columnas de máximo 16 filas
+    for (let i = 0; i < lines.length; i += MAX_ROWS) {
+        columns.push(lines.slice(i, i + MAX_ROWS));
     }
 
-    // Calcular dimensiones finales basadas en la línea más larga
-    let maxLineLength = max(lines.map(l => l.length));
+    let numColumns = columns.length;
+    let maxLineLength = 0;
 
+    // Calcular la línea más larga de TODAS las columnas
+    for (let line of lines) {
+        if (line.length > maxLineLength) maxLineLength = line.length;
+    }
+
+    // Dimensiones disponibles
     let availableWidth = width - margin * 2;
     let availableHeight = height - margin * 2;
 
-    // Calcular tamaño dinámico de la letra para que quepa en pantalla
+    // Factores de tamaño
+    // Ancho columna
+    let columnWidthFactor = maxLineLength * 1.4 - 0.4;
+    if (maxLineLength === 1) columnWidthFactor = 1;
+
+    let columnGapFactor = 2.0;
+
+    // Ancho total
+    let totalWidthFactor = numColumns * columnWidthFactor + (numColumns - 1) * columnGapFactor;
+
+    // Altura total del bloque más alto posible (16 filas)
+    let maxRowsInCol = min(lines.length, MAX_ROWS);
+    let totalHeightFactor = maxRowsInCol * 1.5;
+
+    // Calcular SIZE óptimo
     size = min(
-        availableWidth / (maxLineLength + (maxLineLength - 1) * 0.4),
-        availableHeight / (lines.length + (lines.length - 1) * 0.5)
+        availableWidth / totalWidthFactor,
+        availableHeight / totalHeightFactor
     );
 
-    // LIMITAR el tamaño máximo para que una sola letra no sea gigante
+    // LIMITAR el tamaño
     size = min(size, 120);
+    size = max(size, 8);
 
     spacing = size * 0.4;
     lineHeight = size * 1.5;
+    let columnGap = size * columnGapFactor;
+    let columnWidth = maxLineLength * size + (maxLineLength - 1) * spacing;
+    if (maxLineLength === 0) columnWidth = 0;
 
-    // Calcular dimensiones totales del bloque de texto para centrarlo
-    let gridWidth = maxLineLength * size + (maxLineLength - 1) * spacing;
-    let gridHeight = lines.length * lineHeight;
+    let totalGridWidth = numColumns * columnWidth + (numColumns - 1) * columnGap;
+    // Altura total teórica del bloque completo (usado para centrar el bloque entero)
+    let totalGridHeight = maxRowsInCol * lineHeight;
 
-    let startX = (width - gridWidth) / 2;
-    let startY = (height - gridHeight) / 2;
+    let startXGlobal = (width - totalGridWidth) / 2;
+    let startYGlobal = (height - totalGridHeight) / 2;
 
-    let y = startY;
+    // Generar datos para cada letra
+    for (let c = 0; c < numColumns; c++) {
+        let currentColumnLines = columns[c];
+        let colX = startXGlobal + c * (columnWidth + columnGap);
 
-    // Generar los objetos de datos para cada letra (posición, tamaño, opacidad inicial)
-    for (let line of lines) {
-        let x = startX;
-        for (let c of line) {
-            lettersData.push({ letter: c, x: x, y: y, size: size, opacity: 0 });
-            x += size + spacing;
+        // Centrado Vertical de la Columna individual
+        let colPhysicalHeight = currentColumnLines.length * lineHeight;
+        // Si la columna es más corta que el bloque total, centrarla verticalmente
+        let colY = startYGlobal + (totalGridHeight - colPhysicalHeight) / 2;
+
+        for (let line of currentColumnLines) {
+            let x = colX;
+            // Alineación horizontal: Izquierda (por defecto)
+            for (let char of line) {
+                lettersData.push({ letter: char, x: x, y: colY, size: size, opacity: 0 });
+                x += size + spacing;
+            }
+            colY += lineHeight;
         }
-        y += lineHeight;
     }
 }
 
@@ -362,12 +409,21 @@ function drawLetter(letter, x, y, size, opacity = 255) {
         noStroke();
         let points = letterMapping[letter];
         if (points) {
+            // Ajustar posición para que coincida con el borde visual del rectángulo
+            // El rectángulo se dibuja en (padding, padding) con ancho (size - padding*2)
+            // Queremos que los puntos estén centrados en ese trazo
+            let rectSize = size - padding * 2;
+
             for (let idx of points) {
                 let pos = nodePositions[idx];
                 let pointSize = max(size * 0.1, 3);
-                // Dibujar punto (nota: coordenada Y invertida visualmente porque SVG/Canvas Y crece hacia abajo)
-                // Se ajusta para que coincida con el diseño visual esperado
-                ellipse(pos.x * size, size - pos.y * size, pointSize);
+
+                // Mapear posición (0..1) al borde del rectángulo
+                let px = padding + pos.x * rectSize;
+                // Invertir Y (mismo criterio anterior: 1 es arriba -> Y pequeño)
+                let py = size - (padding + pos.y * rectSize);
+
+                ellipse(px, py, pointSize);
             }
         }
     }
