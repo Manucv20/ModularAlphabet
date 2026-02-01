@@ -32,8 +32,6 @@ function buildLetterMapping() {
         map[letter] = pointsFromNumber(value);
     }
 
-    // Opcional: Ñ (elige UNA lógica)
-    // Opción 1 (sencilla): Ñ = 27 (continúa el conteo)
     map["Ñ"] = pointsFromNumber(27);
 
     // Números 0-9 (28-37)
@@ -84,21 +82,18 @@ let saveButton;
  * Configura el lienzo, inicializa posiciones, procesa la palabra inicial
  * y configura los eventos de los elementos del DOM (botones e input).
  */
+/**
+ * setup()
+ * Función de inicialización de p5.js.
+ * Configura el lienzo, inicializa posiciones, procesa la palabra inicial
+ * y configura los eventos de los elementos del DOM (botones e input).
+ */
 function setup() {
-    // Calcular tamaño del canvas según el dispositivo
-    let aspectRatio = windowWidth / windowHeight;
-    let canvasSize;
-
-    if (aspectRatio > 1.2) {
-        // Pantalla ancha (ordenador)
-        canvasSize = min(windowWidth * 0.92, windowHeight * 0.85);
-    } else {
-        // Pantalla estrecha (móvil, tablet)
-        canvasSize = min(windowWidth * 0.9, windowHeight * 0.7);
-    }
-
-    canvas = createCanvas(canvasSize, canvasSize);
+    // Inicializar con un tamaño temporal, luego se ajustará
+    canvas = createCanvas(100, 100);
     canvas.parent('canvas-container');
+
+    updateCanvasSize(); // Ajustar al tamaño real del contenedor
 
     background(255);
     setupNodePositions();
@@ -182,17 +177,30 @@ function draw() {
  * Recalcula el tamaño del lienzo y vuelve a procesar la palabra para ajustar el layout.
  */
 function windowResized() {
-    let aspectRatio = windowWidth / windowHeight;
-    let canvasSize;
-
-    if (aspectRatio > 1.2) {
-        canvasSize = min(windowWidth * 0.92, windowHeight * 0.85);
-    } else {
-        canvasSize = min(windowWidth * 0.9, windowHeight * 0.7);
-    }
-
-    resizeCanvas(canvasSize, canvasSize);
+    updateCanvasSize();
     prepareWord(word);
+}
+
+/**
+ * updateCanvasSize()
+ * Ajusta el tamaño del canvas para que quepa dentro del contenedor CSS (#canvas-wrapper).
+ * Mantiene una proporción cuadrada para el diseño del alfabeto.
+ */
+function updateCanvasSize() {
+    const wrapper = select('#canvas-wrapper');
+    if (wrapper) {
+        // Obtener dimensiones disponibles en el layout flex
+        let w = wrapper.elt.clientWidth;
+        let h = wrapper.elt.clientHeight;
+
+        // Calcular el cuadrado más grande que cabe, con un pequeño margen
+        let s = min(w, h) - 20;
+
+        // Evitar tamaños inválidos o 0 si el layout aún no se ha estabilizado
+        if (s < 100) s = min(windowWidth, windowHeight) * 0.8;
+
+        resizeCanvas(s, s);
+    }
 }
 
 function normalizeForMapping(str) {
@@ -292,6 +300,9 @@ function prepareWord(word) {
         availableWidth / (maxLineLength + (maxLineLength - 1) * 0.4),
         availableHeight / (lines.length + (lines.length - 1) * 0.5)
     );
+
+    // LIMITAR el tamaño máximo para que una sola letra no sea gigante
+    size = min(size, 120);
 
     spacing = size * 0.4;
     lineHeight = size * 1.5;
