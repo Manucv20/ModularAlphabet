@@ -36,6 +36,18 @@ function buildLetterMapping() {
     // Opción 1 (sencilla): Ñ = 27 (continúa el conteo)
     map["Ñ"] = pointsFromNumber(27);
 
+    // Números 0-9 (28-37)
+    const numbers = "0123456789";
+    for (let i = 0; i < numbers.length; i++) {
+        map[numbers[i]] = pointsFromNumber(28 + i);
+    }
+
+    // Puntuación y símbolos básicos (38-42)
+    const symbols = ".,?!-";
+    for (let i = 0; i < symbols.length; i++) {
+        map[symbols[i]] = pointsFromNumber(38 + i);
+    }
+
     return map;
 }
 
@@ -184,13 +196,20 @@ function windowResized() {
 }
 
 function normalizeForMapping(str) {
-    return str
-        .toUpperCase()
-        .normalize("NFD")                  // separa acentos
-        .replace(/[\u0300-\u036f]/g, "")   // quita marcas diacríticas
-        .replace(/[^A-ZÑ\s]/g, " ")        // deja solo letras, Ñ y espacios
-        .replace(/\s+/g, " ")              // colapsa espacios
-        .trim();
+    let s = str.toUpperCase();
+    // Proteger la Ñ antes de normalizar
+    s = s.replace(/Ñ/g, "###NYE###");
+    // Normalizar para separar acentos (Á -> A + ´) y eliminarlos
+    s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Restaurar la Ñ
+    s = s.replace(/###NYE###/g, "Ñ");
+
+    // Limpiar caracteres no soportados (deja letras, Ñ, números y puntuación básica)
+    s = s.replace(/[^A-ZÑ0-9\.,\?! \-]/g, " ");
+    // Colapsar espacios múltiples
+    s = s.replace(/\s+/g, " ").trim();
+
+    return s;
 }
 
 
