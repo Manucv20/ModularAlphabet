@@ -70,7 +70,10 @@ let canvas;
 let textInput;
 let generateButton;
 let saveButton;
+let themeButton;
 
+// Estado del tema
+let isDarkMode = true; // Por defecto oscuro
 
 // ==========================================
 // FUNCIONES PRINCIPALES DE P5.JS
@@ -79,14 +82,6 @@ let saveButton;
 /**
  * setup()
  * Función de inicialización de p5.js.
- * Configura el lienzo, inicializa posiciones, procesa la palabra inicial
- * y configura los eventos de los elementos del DOM (botones e input).
- */
-/**
- * setup()
- * Función de inicialización de p5.js.
- * Configura el lienzo, inicializa posiciones, procesa la palabra inicial
- * y configura los eventos de los elementos del DOM (botones e input).
  */
 function setup() {
     // Inicializar con un tamaño temporal, luego se ajustará
@@ -95,14 +90,17 @@ function setup() {
 
     updateCanvasSize(); // Ajustar al tamaño real del contenedor
 
-    background(255);
+    // background inicial según tema
+    background(isDarkMode ? color(15, 15, 17) : color(253, 253, 253));
+
     setupNodePositions();
     prepareWord(word);
 
-    // Selección de elementos del DOM (asumiendo que existen en el HTML)
+    // Selección de elementos del DOM
     textInput = select('#textInput');
     generateButton = select('#generateButton');
     saveButton = select('#saveButton');
+    themeButton = select('#themeButton');
 
     // Evento: Generar nueva palabra
     if (generateButton) {
@@ -121,16 +119,37 @@ function setup() {
             feedbackTimer = 60;
         });
     }
+
+    // Evento: Cambiar tema
+    if (themeButton) {
+        themeButton.mousePressed(toggleTheme);
+    }
+}
+
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+
+    // Actualizar clase en el body para CSS
+    if (isDarkMode) {
+        document.body.classList.remove('light-mode');
+        themeButton.html('☀'); // Icono de sol para indicar "cambiar a día"
+    } else {
+        document.body.classList.add('light-mode');
+        themeButton.html('☾'); // Icono de luna para indicar "cambiar a noche"
+    }
+
+    // Forzar redibujado de fondo inmediato
+    // Dark: #0f0f11 (15,15,17) | Light: #fdfdfd (253,253,253)
+    background(isDarkMode ? color(15, 15, 17) : color(253, 253, 253));
 }
 
 /**
  * draw()
  * Bucle principal de renderizado.
- * Se ejecuta continuamente (por defecto a 60 fps).
- * Dibuja las letras, maneja las animaciones de opacidad y el hover del ratón.
  */
 function draw() {
-    background(255);
+    // Color de fondo dinámico
+    background(isDarkMode ? color(15, 15, 17) : color(253, 253, 253));
 
     // Dibujar todas las letras
     for (let data of lettersData) {
@@ -146,13 +165,24 @@ function draw() {
         if (mouseX > data.x && mouseX < data.x + data.size && mouseY > data.y && mouseY < data.y + data.size) {
             if (data.letter !== "empty") {
                 let marginHover = data.size * 0.15;
-                // Fondo oscuro semitransparente
-                fill(0, 230);
+
+                // Fondo del hover y texto según tema
+                if (isDarkMode) {
+                    fill(255, 230); // Fondo claro
+                } else {
+                    fill(0, 230);   // Fondo oscuro
+                }
+
                 noStroke();
                 rect(data.x + marginHover, data.y + marginHover, data.size - marginHover * 2, data.size - marginHover * 2, 6);
 
                 // Letra en texto plano sobre el recuadro
-                fill(255);
+                if (isDarkMode) {
+                    fill(0);   // Texto oscuro
+                } else {
+                    fill(255); // Texto claro
+                }
+
                 textAlign(CENTER, CENTER);
                 textSize(data.size * 0.4);
                 text(data.letter, data.x + data.size / 2, data.y + data.size / 2);
@@ -162,7 +192,7 @@ function draw() {
 
     // Mostrar mensaje de feedback (ej: "Guardado") si el timer está activo
     if (feedbackTimer > 0) {
-        fill(0, map(feedbackTimer, 0, 60, 0, 255));
+        fill(isDarkMode ? 255 : 0, map(feedbackTimer, 0, 60, 0, 255));
         noStroke();
         textAlign(CENTER, CENTER);
         textSize(20);
@@ -395,7 +425,10 @@ function drawLetter(letter, x, y, size, opacity = 255) {
 
     let padding = 1;
     let dynamicStroke = max(size * 0.012, 0.5);
-    stroke(180);
+
+    // Color del trazo (marco)
+    // Dark: Border color subtle (#444 approx) | Light: Border color subtle (#ccc approx)
+    stroke(isDarkMode ? 50 : 200);
     strokeWeight(dynamicStroke);
     noFill();
 
@@ -405,7 +438,9 @@ function drawLetter(letter, x, y, size, opacity = 255) {
 
     // Dibujar los puntos que forman la letra
     if (letter !== "empty") {
-        fill(0, opacity);
+        // Color del punto
+        // Dark: #e0e0e0 (224) | Light: #333333 (51)
+        fill(isDarkMode ? 224 : 51, opacity);
         noStroke();
         let points = letterMapping[letter];
         if (points) {

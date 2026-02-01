@@ -1,130 +1,238 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Alfabeto Modular</title>
     <!-- Viewport optimizado para evitar zoom accidental en inputs y mejorar respuesta -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
     <style>
+      :root {
+        /* Configuración MODO OSCURO (Default) - Professional Palette */
+        --bg-color: #0f0f11; /* Rich Black */
+        --text-color: #e0e0e0; /* Light Gray */
+        --text-color-light: #888;
+        --accent-color: #a3b8ef; /* Soft Periwinkle */
+
+        --container-bg: rgba(20, 20, 25, 0.6); /* Glass effect dark */
+        --container-border: rgba(255, 255, 255, 0.1);
+        --canvas-bg: #0f0f11; /* Match body bg */
+
+        --primary-btn-bg: #a3b8ef;
+        --primary-btn-text: #0f0f11;
+        --secondary-btn-bg: rgba(255, 255, 255, 0.05);
+        --secondary-btn-text: #e0e0e0;
+        --secondary-btn-border: rgba(255, 255, 255, 0.2);
+
+        --input-bg: rgba(0, 0, 0, 0.3);
+        --input-border: rgba(255, 255, 255, 0.1);
+        --shadow-color: rgba(0, 0, 0, 0.4);
+      }
+
+      body.light-mode {
+        /* Configuración MODO CLARO - Clean Palette */
+        --bg-color: #fdfdfd; /* Off-white */
+        --text-color: #333;
+        --text-color-light: #aaa;
+        --accent-color: #4a5a8a; /* Deep Slate Blue */
+
+        --container-bg: rgba(255, 255, 255, 0.7); /* Glass effect light */
+        --container-border: rgba(0, 0, 0, 0.05);
+        --canvas-bg: #fdfdfd;
+
+        --primary-btn-bg: #4a5a8a;
+        --primary-btn-text: #fff;
+        --secondary-btn-bg: rgba(0, 0, 0, 0.03);
+        --secondary-btn-text: #333;
+        --secondary-btn-border: rgba(0, 0, 0, 0.1);
+
+        --input-bg: rgba(255, 255, 255, 0.5);
+        --input-border: rgba(0, 0, 0, 0.1);
+        --shadow-color: rgba(0, 0, 0, 0.08);
+      }
+
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
-      html, body {
+      html,
+      body {
         width: 100%;
         height: 100%;
-        overflow: hidden; /* Evita scroll en la página principal para sensación de App */
+        overflow: hidden;
       }
       body {
-        background-color: #f7f7f7;
-        font-family: "Inter", "Segoe UI", sans-serif;
+        background-color: var(--bg-color);
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between; /* Distribuye espacio: Header - Canvas - UI - Footer */
+        justify-content: space-between;
         padding: 10px;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease;
       }
 
       /* HEADER */
       h1 {
         width: 100%;
         text-align: center;
-        font-size: clamp(24px, 5vw, 40px); /* Tamaño fluido */
-        font-weight: 300;
-        color: #555;
-        letter-spacing: 2px;
-        padding: 10px 0;
-        flex-shrink: 0; /* No encoger */
+        font-size: clamp(24px, 4vw, 36px);
+        font-weight: 200; /* Ultra Light for modern feel */
+        color: var(--accent-color); /* Title Accent */
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        padding: 15px 0;
+        flex-shrink: 0;
         z-index: 10;
+        text-shadow: 0 2px 10px var(--shadow-color);
+        transition: color 0.4s ease;
       }
 
       /* AREA CENTRAL (CANVAS) */
       #canvas-wrapper {
-        flex: 1; /* Ocupa todo el espacio disponible */
+        flex: 1;
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         position: relative;
         overflow: hidden;
-        margin: 10px 0;
+        margin: 0;
       }
 
-      /* El div que p5.js usa (o crearemos) */
       #canvas-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border-radius: 12px;
-        background: #fff;
-        /* El tamaño del canvas se controlará desde JS, pero CSS asegura que no desborde */
+        /* Sutil sombra para dar profundidad al área de dibujo */
+        box-shadow: 0 20px 50px -10px var(--shadow-color);
+        border-radius: 4px; /* Slightly sharper */
+        background: var(--canvas-bg);
+        transition:
+          background 0.4s ease,
+          box-shadow 0.4s ease;
         max-width: 100%;
         max-height: 100%;
       }
 
       canvas {
-        display: block; /* Elimina espacio fantasma inline */
-        border-radius: 12px;
+        display: block;
+        border-radius: 4px;
       }
 
       /* CONTROLES UI */
       #ui-container {
         width: 100%;
-        max-width: 600px;
+        max-width: 550px;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 10px;
-        padding: 10px;
-        background: rgba(255,255,255,0.8);
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
+        align-items: center;
+        gap: 12px;
+        padding: 15px 20px;
+        background: var(--container-bg);
+        border: 1px solid var(--container-border);
+        border-radius: 20px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px); /* Safari support */
         flex-shrink: 0;
         z-index: 10;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 8px 32px 0 var(--shadow-color);
+        margin-bottom: 10px;
+        transition:
+          background 0.4s ease,
+          border-color 0.4s ease,
+          box-shadow 0.4s ease;
       }
 
       input {
         flex: 1;
-        min-width: 200px;
+        min-width: 180px;
         padding: 12px 16px;
-        font-size: 16px; /* Evita zoom automático en iOS */
-        border: 1px solid #ddd;
-        border-radius: 8px;
+        font-size: 15px;
+        background: var(--input-bg);
+        color: var(--text-color);
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
         outline: none;
-        transition: border-color 0.3s;
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+      input::placeholder {
+        color: var(--text-color-light);
+        opacity: 0.7;
       }
       input:focus {
-        border-color: #000;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px var(--shadow-color);
       }
 
       button {
-        padding: 12px 20px;
-        font-size: 14px;
+        padding: 12px 24px;
+        font-size: 13px;
         font-weight: 600;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
-        background-color: #111;
-        color: #fff;
-        transition: transform 0.1s, opacity 0.2s;
+        background-color: var(--primary-btn-bg);
+        color: var(--primary-btn-text);
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
       }
       button:active {
-        transform: scale(0.96);
+        transform: scale(0.98);
       }
+
       button#generateButton {
-        background-color: #111;
+        background-color: var(--primary-btn-bg);
+        color: var(--primary-btn-text);
+        box-shadow: 0 4px 15px var(--shadow-color);
       }
+
       button#saveButton {
-        background-color: #fff;
-        color: #111;
-        border: 1px solid #ddd;
+        background-color: var(--secondary-btn-bg);
+        color: var(--secondary-btn-text);
+        border: 1px solid var(--secondary-btn-border);
+        font-weight: 500;
+      }
+      button#saveButton:hover {
+        background-color: var(--secondary-btn-border);
+      }
+
+      button#themeButton {
+        background-color: transparent;
+        color: var(--text-color);
+        font-size: 18px;
+        padding: 8px 12px;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      button#themeButton:hover {
+        background-color: var(--secondary-btn-bg);
+        border-color: var(--secondary-btn-border);
+        transform: rotate(15deg);
       }
 
       /* FOOTER */
@@ -132,10 +240,12 @@
         padding: 10px;
         text-align: center;
         font-size: 11px;
-        color: #aaa;
+        font-weight: 300;
+        color: var(--text-color-light);
         flex-shrink: 0;
+        opacity: 0.6;
+        transition: color 0.4s ease;
       }
-
     </style>
   </head>
   <body>
@@ -149,6 +259,7 @@
       <input id="textInput" type="text" placeholder="Escribe tu frase..." />
       <button id="generateButton">GENERAR</button>
       <button id="saveButton">GUARDAR</button>
+      <button id="themeButton" title="Cambiar tema">☀</button>
     </div>
 
     <footer>
