@@ -2,39 +2,44 @@
 // CONFIGURACIÓN Y VARIABLES GLOBALES
 // ==========================================
 
-// Mapeo de letras a índices de nodos (retícula de 8 puntos del borde)
-// 6 (TL)  5 (TC)  4 (TR)
+// ==========================================
+// NUEVO SISTEMA: LETRA -> ÍNDICE -> BINARIO 8 BITS -> PUNTOS
+// ==========================================
+
+// Orden de nodos (coincide con nodePositions):
+// 0 (TL)  1 (TC)  2 (TR)
 // 7 (LC)          3 (RC)
-// 0 (BL)  1 (BC)  2 (BR)
-let letterMapping = {
-    'A': [0, 6, 5, 4, 2, 7, 3],   // A: Sides + Top
-    'B': [0, 6, 5, 3, 1, 7],      // B: Left + Right bumps
-    'C': [6, 7, 0, 1, 5],         // C: Left + Top/Bot Centers
-    'D': [0, 6, 5, 3, 1],         // D: Left + Right Curve
-    'E': [6, 7, 0, 5, 1],         // E: Left Col + Top/Bot Centers
-    'F': [6, 7, 0, 5],            // F: Left Col + Top Center
-    'G': [6, 7, 0, 1, 3, 5],      // G: C shape + inward hook
-    'H': [0, 6, 2, 4, 7, 3],      // H: Sides + Mid connectors
-    'I': [1, 5],                  // I: Vertical Center
-    'J': [0, 1, 2, 4],            // J: Hook
-    'K': [0, 6, 7, 3, 4, 2],      // K: Left + Chevron right?
-    'L': [6, 0, 1],               // L: Left + Bottom
-    'M': [0, 6, 5, 4, 2],         // M: Arch
-    'N': [0, 6, 4, 2],            // N: Corners
-    'Ñ': [0, 6, 4, 2, 5],         // Ñ: Corners + Top
-    'O': [0, 6, 5, 4, 2, 1, 7, 3], // O: Full Box
-    'P': [0, 6, 5, 3, 7],         // P: P shape
-    'Q': [0, 6, 5, 4, 2, 1, 7, 3], // Q: Full Box (same as O? maybe add distinct dot?)
-    'R': [0, 6, 5, 3, 7, 2],      // R: P + Leg
-    'S': [4, 5, 7, 2, 1],         // S: Zig-Zag (TR, TC, LC, BR, BC)
-    'T': [6, 5, 4, 1],            // T: Top Bar + Bot Center
-    'U': [0, 6, 2, 4, 1],         // U: Sides + Bot Center
-    'V': [6, 4, 1],               // V: Top corners + Bot Center
-    'W': [6, 0, 1, 2, 4],         // W: Inverted Arch
-    'X': [0, 4, 6, 2],            // X: Corners
-    'Y': [6, 4, 1, 5],            // Y: Top corners + Center stalk
-    'Z': [6, 4, 3, 7, 0, 2]       // Z: Top/Bot corners + Mid cross
-};
+// 6 (BL)  5 (BC)  4 (BR)
+
+function pointsFromNumber(n) {
+    // Devuelve los índices de los nodos activos según binario de 8 bits
+    // bit 0 -> nodo 0, bit 1 -> nodo 1, ..., bit 7 -> nodo 7
+    let pts = [];
+    for (let i = 0; i < 8; i++) {
+        if ((n >> i) & 1) pts.push(i);
+    }
+    return pts;
+}
+
+function buildLetterMapping() {
+    const map = {};
+
+    // A=1 ... Z=26
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for (let i = 0; i < alphabet.length; i++) {
+        const letter = alphabet[i];
+        const value = i + 1;
+        map[letter] = pointsFromNumber(value);
+    }
+
+    // Opcional: Ñ (elige UNA lógica)
+    // Opción 1 (sencilla): Ñ = 27 (continúa el conteo)
+    map["Ñ"] = pointsFromNumber(27);
+
+    return map;
+}
+
+let letterMapping = buildLetterMapping();
 
 // Variables de estado y configuración
 let nodePositions; // Almacenará los vectores de posición de los puntos
@@ -95,7 +100,8 @@ function setup() {
     // Evento: Generar nueva palabra
     if (generateButton) {
         generateButton.mousePressed(() => {
-            word = textInput.value().toUpperCase();
+            const raw = textInput.value();
+            word = normalizeForMapping(raw);
             prepareWord(word);
         });
     }
@@ -175,6 +181,16 @@ function windowResized() {
 
     resizeCanvas(canvasSize, canvasSize);
     prepareWord(word);
+}
+
+function normalizeForMapping(str) {
+    return str
+        .toUpperCase()
+        .normalize("NFD")                  // separa acentos
+        .replace(/[\u0300-\u036f]/g, "")   // quita marcas diacríticas
+        .replace(/[^A-ZÑ\s]/g, " ")        // deja solo letras, Ñ y espacios
+        .replace(/\s+/g, " ")              // colapsa espacios
+        .trim();
 }
 
 
