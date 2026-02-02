@@ -12,261 +12,109 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        /* Configuración MODO OSCURO (Default) - Professional Palette */
-        --bg-color: #0f0f11; /* Rich Black */
-        --text-color: #e0e0e0; /* Light Gray */
-        --text-color-light: #888;
-        --accent-color: #a3b8ef; /* Soft Periwinkle */
-
-        --container-bg: rgba(20, 20, 25, 0.6); /* Glass effect dark */
-        --container-border: rgba(255, 255, 255, 0.1);
-        --canvas-bg: #0f0f11; /* Match body bg */
-
-        --primary-btn-bg: #a3b8ef;
-        --primary-btn-text: #0f0f11;
-        --secondary-btn-bg: rgba(255, 255, 255, 0.05);
-        --secondary-btn-text: #e0e0e0;
-        --secondary-btn-border: rgba(255, 255, 255, 0.2);
-
-        --input-bg: rgba(0, 0, 0, 0.3);
-        --input-border: rgba(255, 255, 255, 0.1);
-        --shadow-color: rgba(0, 0, 0, 0.4);
-      }
-
-      body.light-mode {
-        /* Configuración MODO CLARO - Clean Palette */
-        --bg-color: #fdfdfd; /* Off-white */
-        --text-color: #333;
-        --text-color-light: #aaa;
-        --accent-color: #4a5a8a; /* Deep Slate Blue */
-
-        --container-bg: rgba(255, 255, 255, 0.7); /* Glass effect light */
-        --container-border: rgba(0, 0, 0, 0.05);
-        --canvas-bg: #fdfdfd;
-
-        --primary-btn-bg: #4a5a8a;
-        --primary-btn-text: #fff;
-        --secondary-btn-bg: rgba(0, 0, 0, 0.03);
-        --secondary-btn-text: #333;
-        --secondary-btn-border: rgba(0, 0, 0, 0.1);
-
-        --input-bg: rgba(255, 255, 255, 0.5);
-        --input-border: rgba(0, 0, 0, 0.1);
-        --shadow-color: rgba(0, 0, 0, 0.08);
-      }
-
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-      }
-      body {
-        background-color: var(--bg-color);
-        font-family:
-          "Inter",
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          Roboto,
-          sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px;
-        transition:
-          background-color 0.4s ease,
-          color 0.4s ease;
-      }
-
-      /* HEADER */
-      h1 {
-        width: 100%;
-        text-align: center;
-        font-size: clamp(24px, 4vw, 36px);
-        font-weight: 200; /* Ultra Light for modern feel */
-        color: var(--accent-color); /* Title Accent */
-        letter-spacing: 4px;
-        text-transform: uppercase;
-        padding: 15px 0;
-        flex-shrink: 0;
-        z-index: 10;
-        text-shadow: 0 2px 10px var(--shadow-color);
-        transition: color 0.4s ease;
-      }
-
-      /* AREA CENTRAL (CANVAS) */
-      #canvas-wrapper {
-        flex: 1;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        margin: 0;
-      }
-
-      #canvas-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        /* Sutil sombra para dar profundidad al área de dibujo */
-        box-shadow: 0 20px 50px -10px var(--shadow-color);
-        border-radius: 4px; /* Slightly sharper */
-        background: var(--canvas-bg);
-        transition:
-          background 0.4s ease,
-          box-shadow 0.4s ease;
-        max-width: 100%;
-        max-height: 100%;
-      }
-
-      canvas {
-        display: block;
-        border-radius: 4px;
-      }
-
-      /* CONTROLES UI */
-      #ui-container {
-        width: 100%;
-        max-width: 550px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-        padding: 15px 20px;
-        background: var(--container-bg);
-        border: 1px solid var(--container-border);
-        border-radius: 20px;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px); /* Safari support */
-        flex-shrink: 0;
-        z-index: 10;
-        box-shadow: 0 8px 32px 0 var(--shadow-color);
-        margin-bottom: 10px;
-        transition:
-          background 0.4s ease,
-          border-color 0.4s ease,
-          box-shadow 0.4s ease;
-      }
-
-      input {
-        flex: 1;
-        min-width: 180px;
-        padding: 12px 16px;
-        font-size: 15px;
-        background: var(--input-bg);
-        color: var(--text-color);
-        border: 1px solid var(--input-border);
-        border-radius: 10px;
-        outline: none;
-        transition: all 0.3s ease;
-        font-family: inherit;
-      }
-      input::placeholder {
-        color: var(--text-color-light);
-        opacity: 0.7;
-      }
-      input:focus {
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 2px var(--shadow-color);
-      }
-
-      button {
-        padding: 12px 24px;
-        font-size: 13px;
-        font-weight: 600;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        background-color: var(--primary-btn-bg);
-        color: var(--primary-btn-text);
-        transition: all 0.2s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      button:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.1);
-      }
-      button:active {
-        transform: scale(0.98);
-      }
-
-      button#generateButton {
-        background-color: var(--primary-btn-bg);
-        color: var(--primary-btn-text);
-        box-shadow: 0 4px 15px var(--shadow-color);
-      }
-
-      button#saveButton {
-        background-color: var(--secondary-btn-bg);
-        color: var(--secondary-btn-text);
-        border: 1px solid var(--secondary-btn-border);
-        font-weight: 500;
-      }
-      button#saveButton:hover {
-        background-color: var(--secondary-btn-border);
-      }
-
-      button#themeButton {
-        background-color: transparent;
-        color: var(--text-color);
-        font-size: 18px;
-        padding: 8px 12px;
-        border: 1px solid transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      button#themeButton:hover {
-        background-color: var(--secondary-btn-bg);
-        border-color: var(--secondary-btn-border);
-        transform: rotate(15deg);
-      }
-
-      /* FOOTER */
-      footer {
-        padding: 10px;
-        text-align: center;
-        font-size: 11px;
-        font-weight: 300;
-        color: var(--text-color-light);
-        flex-shrink: 0;
-        opacity: 0.6;
-        transition: color 0.4s ease;
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css?v=3">
   </head>
   <body>
     <h1>ALFABETO MODULAR</h1>
+
+    <div id="nav-container">
+      <button class="nav-tab active" data-mode="home">INICIO</button>
+      <button class="nav-tab" data-mode="generator">GENERADOR</button>
+      <button class="nav-tab" data-mode="game">JUEGO 3D</button>
+
+      <!-- Separator -->
+      <div style="flex-grow: 1;"></div>
+
+      <!-- Theme Toggle -->
+      <button id="themeButton" title="Cambiar tema" aria-label="Cambiar tema oscuro/claro" onclick="toggleGlobalTheme()">☾</button>
+
+      <!-- Color Hints Toggle (Circular Button) -->
+      <button id="colorHintsButton" title="Activar/Desactivar colores" aria-label="Activar o desactivar pistas de color" onclick="toggleColorHints()" style="display: none;">🎨</button>
+    </div>
 
     <div id="canvas-wrapper">
       <div id="canvas-container"></div>
     </div>
 
-    <div id="ui-container">
+    <!-- UI Container para Home / Intro -->
+    <div id="home-ui-container" class="mode-ui" data-mode="home">
+      <div class="legend-overlay" id="legendOverlay">
+        <h2>GUÍA DE CÓDIGOS</h2>
+        
+        <div class="legend-section collapsed" id="section1">
+          <h3 onclick="toggleSection('section1')">SISTEMA CROMÁTICO</h3>
+          <div class="legend-section-content">
+            <p class="legend-desc">Los módulos se colorean según su rama estructural en el alfabeto.</p>
+            <div class="color-guide">
+              <div class="guide-item"><span class="swatch" style="background:#FF0000"></span> A-F</div>
+              <div class="guide-item"><span class="swatch" style="background:#FFCC00"></span> G-L</div>
+              <div class="guide-item"><span class="swatch" style="background:#00CC99"></span> M-R</div>
+              <div class="guide-item"><span class="swatch" style="background:#3366FF"></span> S-X</div>
+              <div class="guide-item"><span class="swatch" style="background:#9933CC"></span> Y-Ñ</div>
+              <div class="guide-item"><span class="swatch" style="background:#FF33CC"></span> 0-9</div>
+              <div class="guide-item"><span class="swatch" style="background:#00CCFF"></span> .?!</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="legend-section collapsed" id="section2">
+          <h3 onclick="toggleSection('section2')">ALFABETO BINARIO</h3>
+          <div class="legend-section-content">
+            <p class="legend-desc">Cada carácter es una representación de 8 bits posicionales.</p>
+            
+            <!-- Nueva área de previsualización visual -->
+            <div id="char-preview-panel">
+              <div class="preview-left">
+                <div class="preview-visual-host" id="previewVisual"></div>
+                <span class="preview-char" id="previewText">?</span>
+              </div>
+              <span class="preview-info" id="previewDesc">Toca un símbolo</span>
+            </div>
+
+            <div id="alphabet-grid">
+              <!-- Se rellenará dinámicamente con JS -->
+              <div class="alpha-placeholder">Generando guía...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI Container específico para el Generador -->
+    <div id="ui-container" class="mode-ui" data-mode="generator" style="display:none;">
       <input id="textInput" type="text" placeholder="Escribe tu frase..." />
       <button id="generateButton">GENERAR</button>
       <button id="saveButton">GUARDAR</button>
-      <button id="themeButton" title="Cambiar tema">☀</button>
+    </div>
+
+    <!-- UI Placeholder para el Juego -->
+    <div id="game-ui-container" class="mode-ui" data-mode="game" style="display: none;">
+      <div class="game-hud">
+        <div class="score-board">PUNTOS: <span id="scoreVal">0</span></div>
+        <div class="target-display">
+          <span class="label">TRADUCE:</span>
+          <h2 id="targetWordDisplay">Cargando...</h2>
+        </div>
+        <div id="feedbackDisplay" class="feedback-msg"></div>
+        <div class="instructions">Busca y haz clic en la letra modular correcta</div>
+      </div>
     </div>
 
     <footer>
       Hecho con p5.js • Proyecto experimental • Manuel Cañas Vidaller
     </footer>
 
-    <script src="libs/p5.min.js"></script>
-    <script src="sketch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="js/modes/shared.js"></script>
+    <script src="js/modes/home.js"></script>
+    <script src="js/modes/generator.js"></script>
+    <script src="js/modes/game.js"></script>
+
+    <!-- Main Logic -->
+    <script src="js/app.js"></script>
+    <script>
+      // Fallback simple para desarrollo o si algo falla en carga
+      console.log('Modular Alphabet Loaded');
+    </script>
   </body>
 </html>
