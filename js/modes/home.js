@@ -2,75 +2,71 @@ const homeSketch = (p) => {
 
     let targetZ = 400; // Objetivo de Radio (Distancia al centro)
     let modules = []; // Array de módulos flotantes
-    let autoRotateAngle = 0; // Ángulo de rotación automática
     let cam; // Variable para la cámara
-
-    let initialTouchDist = 0; // Para Zoom Táctil
+    let canvas; // Persist canvas reference for custom controls
 
     // ==========================================
     // SETUP
     // ==========================================
     p.setup = function () {
-        let canvas = p.createCanvas(100, 100, p.WEBGL);
+        canvas = p.createCanvas(100, 100, p.WEBGL);
         canvas.parent('canvas-container');
 
         updateCanvasSize();
 
-        // Cámara Orbit suave
+        // Camera setup
         cam = p.createCamera();
-        cam.setPosition(0, 0, 400); // Start at Immersive Distance
+        cam.setPosition(0, 0, 400);
         cam.lookAt(0, 0, 0);
 
-        // Custom Mouse Wheel 
-        p.mouseWheel = function (event) {
-            // LOCK ZOOM WHILE ROTATING
-            if (p.mouseIsPressed) return false;
+        // Custom Pinch Zoom (with threshold to prevent false positives)
+        let lastDist = 0;
+        let pinchStarted = false;
+        const PINCH_THRESHOLD = 15; // Pixels of movement required before zoom activates
 
-            // Update TARGET Z, not immediate position (Smooth)
-            targetZ += event.delta * 0.5;
-
-            // Clamp Limits
-            if (targetZ < 1) targetZ = 1;
-            if (targetZ > 1200) targetZ = 1200;
-
-            return false;
-        };
-
-        // Touch Gestures (Pinch to Zoom)
         canvas.touchStarted(() => {
             if (p.touches.length === 2) {
-                initialTouchDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
-                return false;
+                lastDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
+                pinchStarted = false; // Reset - wait for movement
+                return false; // Prevent default
             }
         });
 
         canvas.touchMoved(() => {
             if (p.touches.length === 2) {
                 let currentDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
-                let delta = initialTouchDist - currentDist;
 
-                // Activate zoom only after crossing threshold
-                if (!touchZoomActive && Math.abs(delta) > PINCH_THRESHOLD) {
-                    touchZoomActive = true;
+                // Only start zooming after threshold is crossed
+                if (!pinchStarted) {
+                    if (Math.abs(currentDist - lastDist) > PINCH_THRESHOLD) {
+                        pinchStarted = true;
+                    }
                 }
 
-                // Apply zoom if gesture is active
-                if (touchZoomActive) {
+                // Apply zoom only if pinch gesture is confirmed
+                if (pinchStarted) {
+                    let delta = lastDist - currentDist;
                     targetZ += delta * 2;
-                    if (targetZ < 1) targetZ = 1;
-                    if (targetZ > 1200) targetZ = 1200;
-                    initialTouchDist = currentDist;
+                    targetZ = p.constrain(targetZ, 1, 1200);
+                    lastDist = currentDist;
                 }
-                return false;
+                return false; // Prevent default
             }
-            // 1 finger: allow orbitControl to handle rotation (return undefined)
         });
 
+        // Mouse wheel zoom (locks during rotation to prevent conflicts)
+        p.mouseWheel = function (event) {
+            if (p.mouseIsPressed) return false; // Prevent zoom while rotating
 
-        // Generar Nube de Letras (Decorativa)
+            targetZ += event.delta * 0.5;
+            targetZ = p.constrain(targetZ, 1, 1200);
+            return false;
+        };
+
+        // Generate decorative letter cloud
         spawnIntroModules();
 
-        // Generar la GRID de la Leyenda (DOM)
+        // Generate legend grid (DOM)
         generateLegendGrid();
     };
 
@@ -84,41 +80,53 @@ const homeSketch = (p) => {
         // Usar clear() para permitir que el fondo CSS (que tiene transición suave) se vea
         p.clear();
 
-        // CONTROL DE CÁMARA INTELIGENTE
+        // CUSTOM CAMERA CONTROL (No orbitControl - eliminates 2-touch requirement)
 
-        // 1. Orbit Control (Solo rotación X/Y, Zoom Z desactivado '0')
-        p.orbitControl(1, 1, 0);
+        // Track rotation angles
+        if (typeof p.angleX === 'undefined') {
+            p.angleX = 0;
+            p.angleY = 0;
+        }
 
-        // 2. Camera Interaction Logic
-        // Camera stays at user-defined zoom (no auto-reset).
+        // Mouse drag rotation (Desktop)
+        if (p.mouseIsPressed && p.touches.length === 0) {
+            let dx = p.mouseX - p.pmouseX;
+            let dy = p.mouseY - p.pmouseY;
+            p.angleY += dx * 0.005;
+            p.angleX -= dy * 0.005;
+            p.angleX = p.constrain(p.angleX, -p.PI / 2, p.PI / 2);
+        }
 
-        // 3. Spherical Zoom Logic (Radius-based)
-        // Calculate current radius (Magnitude of camera position vector)
+        // Single touch drag rotation (Mobile - 1 finger)
+        if (p.touches.length === 1) {
+            let touch = p.touches[0];
+            if (typeof p.prevTouchX !== 'undefined') {
+                let dx = touch.x - p.prevTouchX;
+                let dy = touch.y - p.prevTouchY;
+                p.angleY += dx * 0.005;
+                p.angleX -= dy * 0.005;
+                p.angleX = p.constrain(p.angleX, -p.PI / 2, p.PI / 2);
+            }
+            p.prevTouchX = touch.x;
+            p.prevTouchY = touch.y;
+        } else {
+            p.prevTouchX = undefined;
+            p.prevTouchY = undefined;
+        }
+
+        // Apply rotation to camera position
+        let radius = targetZ;
+        let x = radius * p.sin(p.angleY) * p.cos(p.angleX);
+        let y = radius * p.sin(p.angleX);
+        let z = radius * p.cos(p.angleY) * p.cos(p.angleX);
+
+        // Smooth camera movement
         let currentPos = p.createVector(cam.eyeX, cam.eyeY, cam.eyeZ);
-        let currentRadius = currentPos.mag();
+        let targetPos = p.createVector(x, y, z);
+        let smoothPos = p5.Vector.lerp(currentPos, targetPos, 0.1);
 
-        // Lerp the radius, not just Z
-        let smoothRadius = p.lerp(currentRadius, targetZ, 0.1);
-
-        // Apply new radius to the existing vector direction
-        if (currentRadius > 0.1) {
-            currentPos.normalize();
-            currentPos.mult(smoothRadius);
-            cam.setPosition(currentPos.x, currentPos.y, currentPos.z);
-        }
-
-        // Auto-rotación suave si no hay interacción
-
-        // 4. Eje Absoluto: Siempre mirar al (0,0,0)
-        // Esto corrige cualquier "Pan" accidental (Shift+Click) que desplace el eje
+        cam.setPosition(smoothPos.x, smoothPos.y, smoothPos.z);
         cam.lookAt(0, 0, 0);
-
-        // Auto-rotación suave si no hay interacción
-        if (!p.mouseIsPressed) {
-            autoRotateAngle += 0.001; // Velocidad reducida (Drift sutil)
-        }
-        // Aplicar rotación SIEMPRE para evitar saltos al interactuar
-        p.rotateY(autoRotateAngle);
 
         // Luces (Restaurar)
         p.ambientLight(100);

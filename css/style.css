@@ -105,6 +105,7 @@ h1 {
   overflow: hidden;
   margin: 0;
   padding: 0; /* Ensure no internal padding */
+  touch-action: none; /* CRITICAL: Let p5.js handle touch events immediately */
 }
 
 #canvas-container {

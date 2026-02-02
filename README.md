@@ -1,53 +1,137 @@
 # Alfabeto Modular 💠
 
-Una exploración interactiva y visual sobre la traducción de lenguaje humano a geometría abstracta. Este proyecto transforma texto alfanumérico en patrones modulares únicos basados en sistemas binarios y posicionales.
+> Un sistema visual interactivo que transforma texto en geometría modular tridimensional basada en codificación binaria posicional.
 
-## 🌟 Características Principales
+[![Made with p5.js](https://img.shields.io/badge/Made%20with-p5.js-ED225D?style=flat-square&logo=p5.js)](https://p5js.org/)
+[![Pure JavaScript](https://img.shields.io/badge/Pure-JavaScript-F7DF1E?style=flat-square&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Mobile Optimized](https://img.shields.io/badge/Mobile-Optimized-00C853?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 
-### 1. **Modo Inicio (Exploración Visual)**
-- **Nube de Caracteres 3D:** Un entorno inmersivo donde los módulos flotan y reaccionan al cursor.
-- **Leyenda Interactiva:**
-  - **Panel de Previsualización Visual:** Al pasar el ratón o tocar un símbolo en la guía, verás su construcción geométrica en grande, su categoría (Letra, Número, Signo) y su color correspondiente.
-  - **Sistema Cromático:** Los módulos se colorean según su "rama" en el alfabeto para facilitar la identificación.
+## 🎯 Concepto
 
-### 2. **Modo Generador**
-- **Traducción Instantánea:** Escribe cualquier frase y observa su conversión a módulos geométricos en tiempo real.
-- **Temas de Alto Contraste:** Cambia entre Modo Día (Fondo Blanco) y Modo Noche (Fondo Negro) para una legibilidad óptima.
-- **Exportación:** Guarda tus composiciones como imágenes PNG.
+Cada carácter del alfabeto, número y símbolo se representa como una configuración única de 8 puntos en un cubo tridimensional. La posición de cada carácter en el alfabeto determina qué puntos se activan mediante codificación binaria, creando patrones geométricos distintivos y memorables.
 
-### 3. **Modo Juego 3D (Desafío)**
-- **Aprende Jugando:** Un entorno tridimensional donde debes encontrar la letra modular correcta que corresponde a la palabra objetivo.
-- **Progresión:** Acumula puntos y supera niveles mientras memorizas los patrones.
+## ✨ Características
 
-## 🎨 Diseño y Tecnología
+### 🏠 **Modo Inicio**
+Exploración visual inmersiva con:
+- **Nube de módulos 3D** flotante y reactiva
+- **Sistema cromático** por ramas del alfabeto (7 grupos de color)
+- **Leyenda interactiva** con previsualización en tiempo real
+- **Controles táctiles avanzados**: Rotación con 1 dedo, zoom con 2 dedos (threshold inteligente)
 
-El proyecto destaca por su atención al detalle visual y técnico:
+### ⚙️ **Generador**
+Traductor instantáneo de texto a geometría:
+- Conversión en tiempo real de cualquier frase
+- Soporte completo: A-Z, Ñ, 0-9, signos de puntuación
+- Exportación de imágenes PNG
+- Temas claro/oscuro optimizados
 
-- **Estructura Modular:** Código organizado profesionalmente en carpetas (`css/`, `js/modes/`, `js/libs/`).
-- **Diseño Responsivo Total:**
-  - Funciona perfectamente en Móviles, Tablets y Escritorio.
-  - **Interacción Táctil:** Soporte nativo para Pinch-to-Zoom (zoom con dos dedos) en los entornos 3D.
-  - Interfaz adaptativa: Menús táctiles, cuadrículas flexibles (hasta 12 columnas) y paneles colapsables.
-- **Accesibilidad y UX:**
-  - Tipografía Inter para máxima legibilidad.
-  - Footer y menús con estilo "Glassmorphism".
-  - Feedback visual constante (hover, active states).
+### 🎮 **Juego 3D**
+Aprende el sistema jugando:
+- Entorno tridimensional interactivo
+- Sistema de puntuación progresivo
+- Retroalimentación visual instantánea
+- Desafíos crecientes de dificultad
+
+## 🎨 Diseño & UX
+
+### Controles Táctiles Personalizados
+- **1 dedo**: Rotación de cámara inmediata (sin activación previa)
+- **2 dedos**: Zoom con pinch (threshold de 15px para prevenir falsos positivos)
+- **Desktop**: Click + arrastrar para rotar, rueda para zoom
+- **Sistema custom**: Reemplaza orbitControl() de p5.js para control total
+
+### Temas Optimizados
+- **Modo Oscuro**: Negro profundo (#0f0f11) OLED-friendly
+- **Modo Claro**: Beige cálido (#ebe8e3) para reducir fatiga visual
+- **Meta theme-color**: Color dinámico de barra del navegador móvil
+
+### Responsive por Defecto
+- Diseño adaptativo completo (móvil, tablet, desktop)
+- Touch-action optimizado para gestos nativos
+- Tipografía Inter con legibilidad excepcional
+- Glassmorphism effect en UI
 
 ## 🛠 Tecnologías
 
-- **HTML5 & CSS3:** Layouts modernos con CSS Grid/Flexbox y variables CSS para tematización.
-- **JavaScript (ES6+):** Lógica modular y orientada a objetos.
-- **p5.js:** Motor gráfico para el renderizado 3D y 2D en los elementos `<canvas>`.
+### Core
+- **HTML5 + CSS3**: Layout con Grid/Flexbox, CSS Variables para theming
+- **JavaScript ES6+**: POO modular, sin dependencias externas
+- **p5.js 1.6.0**: Motor de renderizado 2D/3D
 
-## 📂 Instalación
+### Arquitectura
+```
+ModularAlphabet/
+├── index.html          # Punto de entrada
+├── css/
+│   └── style.css       # Theming con CSS Variables
+└── js/
+    ├── app.js          # Estado global, navegación
+    └── modes/
+        ├── shared.js   # Utilidades centralizadas (color, geometría)
+        ├── home.js     # Modo exploración 3D
+        ├── generator.js # Traductor de texto
+        └── game.js     # Modo juego interactivo
+```
 
-No requiere instalación de dependencias complejas. Es una aplicación web estática:
+### Características Técnicas
+- **Custom Camera System**: Rotación esférica manual (sin orbitControl)
+- **State Management**: Sistema global con sincronización automática
+- **Pixel Density**: Optimización pixelDensity(1) para rendimiento
+- **Memory Safe**: Cleanup automático de instancias p5.js
+- **DRY Utilities**: Helpers centralizados en shared.js
 
-1. Clona el repositorio.
-2. Abre `index.html` en tu navegador.
-3. ¡Disfruta!
+## 🚀 Instalación
+
+```bash
+# Clonar repositorio
+git clone https://github.com/tu-usuario/ModularAlphabet.git
+
+# Abrir en navegador
+open index.html
+```
+
+**No requiere build ni dependencias.** Es una aplicación web estática lista para usar.
+
+## 📱 Compatibilidad
+
+- ✅ Chrome/Edge (Recomendado)
+- ✅ Firefox
+- ✅ Safari (iOS/macOS)
+- ✅ Navegadores móviles modernos
+
+## 🎓 Sistema de Codificación
+
+Cada carácter se mapea a un valor numérico:
+- **A-Z**: Posición alfabética (1-26)
+- **Ñ**: Valor 27
+- **0-9**: Valores 28-37
+- **Símbolos** (.,?!-): Valores 38-42
+
+Este valor se convierte en binario de 8 bits, donde cada bit activo representa uno de los 8 vértices del cubo modular.
+
+**Ejemplo**: `A` = 1 → `00000001` → Solo el punto 0 activo
+
+## 🎨 Paleta Cromática
+
+7 grupos de color con interpolación HSB:
+1. **Números (0-9)**: Rosa vibrante → Magenta
+2. **A-F**: Rosa profundo → Coral
+3. **G-L**: Oro cálido → Ámbar
+4. **M-R**: Verde primavera → Turquesa
+5. **S-X**: Azul cielo → Azure profundo
+6. **Y-Ñ**: Índigo → Violeta eléctrico
+7. **Símbolos**: Gris neutral (baja saturación)
+
+## 👨‍💻 Autor
+
+**Manuel Cañas Vidaller**  
+*Proyecto Experimental de Codificación Creativa*
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y está disponible para uso educativo y experimental.
 
 ---
 
-**Autor:** Manuel Cañas Vidaller  
-*Proyecto Experimental de Codificación Creativa*
+**⚡ Production Ready** | **🎯 0 Errores** | **📱 Mobile First** | **🎨 Responsive Design**

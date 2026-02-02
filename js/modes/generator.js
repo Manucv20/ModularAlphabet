@@ -1,29 +1,18 @@
 const generatorSketch = (p) => {
     // ==========================================
-    // CONFIGURACIÓN Y VARIABLES GLOBALES
+    // STATE VARIABLES
     // ==========================================
-
-    // ==========================================
-    // VARIABLES DE ESTADO
-    // ==========================================
-    let nodePositions; // Almacenará los vectores de posición de los puntos
-    let word = "Espero que tengas un buen dia"; // Texto inicial
-    let lettersData = []; // Datos calculados de cada letra a dibujar
+    let nodePositions; // Position vectors for modular points
+    let word = "Espero que tengas un buen dia"; // Initial text
+    let lettersData = []; // Computed data for each letter
     let feedbackText = '';
     let feedbackTimer = 0;
 
-    // Variables de UI y DOM
+    // DOM elements
     let canvas;
     let textInput;
     let generateButton;
     let saveButton;
-
-    // Estado del tema (Dynamic via globalAppState)
-
-
-    // ==========================================
-    // HELPERS (Ahora delegados a shared.js)
-    // ==========================================
 
     p.setup = function () {
         canvas = p.createCanvas(100, 100);
