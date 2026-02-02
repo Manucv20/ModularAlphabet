@@ -3,7 +3,6 @@ const gameSketch = (p) => {
     // CONFIGURACIÓN Y ESTADO
     // ==========================================
     const CONFIG = {
-        MODULE_SIZE: 60,
         BOUNDS_SIZE: 350,  // Radio del "mundo" cúbico (x,y,z: -350 a 350)
         CAM_DIST: 900, // Distancia cámara perspectiva
         SELECTION_COLOR: { h: 0, s: 90, b: 100 }, // ROJO (Hover/Encima)
@@ -26,6 +25,7 @@ const gameSketch = (p) => {
         feedback: null
     };
     let cam;
+    let targetZ = 900; // Start at Overview (900)
 
     // ==========================================
     // CICLO DE VIDA P5 (SETUP & DRAW)
@@ -40,7 +40,9 @@ const gameSketch = (p) => {
 
         // Inicializar
         updateCanvasSize();
-        // buildLetterMapping() REMOVED - using shared logic
+        // Inicializar
+        updateCanvasSize();
+        // Uses shared logic for letter mapping
 
         // Referencias DOM
         ui.score = p.select('#scoreVal');
@@ -49,18 +51,47 @@ const gameSketch = (p) => {
 
         // Cámara Perspectiva (Standard)
         cam = p.createCamera();
-        cam.setPosition(0, 0, CONFIG.CAM_DIST);
+        cam.setPosition(0, 0, 900); // Overview Position
         cam.lookAt(0, 0, 0);
 
         // Custom Zoom Control
         p.mouseWheel = function (event) {
-            let newZ = cam.eyeZ + event.delta * 0.5;
-            // Clamp Zoom for Game Mode
-            if (newZ < 400) newZ = 400;
-            if (newZ > 1200) newZ = 1200;
-            cam.setPosition(cam.eyeX, cam.eyeY, newZ);
+            // Lock Zoom while Rotating
+            if (p.mouseIsPressed) return false;
+
+            // Smooth Target Update
+            targetZ += event.delta * 0.5;
+
+            // Allow getting close (1), but cap far distance (1200)
+            if (targetZ < 1) targetZ = 1;
+            if (targetZ > 1200) targetZ = 1200;
+
             return false;
         };
+
+        // Touch Gestures (Pinch to Zoom)
+        let initialTouchDist = 0;
+        canvas.touchStarted(() => {
+            if (p.touches.length === 2) {
+                initialTouchDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
+                return false;
+            }
+        });
+
+        canvas.touchMoved(() => {
+            if (p.touches.length === 2) {
+                let currentDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
+                let delta = initialTouchDist - currentDist;
+
+                targetZ += delta * 2;
+
+                if (targetZ < 1) targetZ = 1;
+                if (targetZ > 1200) targetZ = 1200;
+
+                initialTouchDist = currentDist;
+                return false;
+            }
+        });
 
         // Iniciar partida
         newRound();
@@ -70,16 +101,37 @@ const gameSketch = (p) => {
     // DRAW LOOP
     // ==========================================
     p.draw = function () {
-        let isDark = (window.globalAppState && window.globalAppState.isDarkMode) !== undefined ? window.globalAppState.isDarkMode : true;
+        let isDark = getIsDarkMode();
         p.colorMode(p.RGB);
+        p.clear(); // Transparencia para ver el fondo CSS suave
 
-        if (isDark) {
-            p.background(15, 15, 17); // Match CSS #0f0f11
-        } else {
-            p.background(230, 233, 239); // Match CSS #e6e9ef
+        // ============================
+        // CÁMARA INTELIGENTE (IGUAL QUE HOME)
+        // ============================
+
+        // 1. Orbit Control (Solo rotación X/Y, Zoom Z desactivado)
+        p.orbitControl(1, 1, 0);
+
+        // 2. Strict Axis Centering (Prevent Panning Drift)
+        cam.lookAt(0, 0, 0);
+
+        // 2. Camera Interaction Logic
+        // Camera stays at user-defined zoom.
+
+        // 3. Spherical Zoom Logic (Radius-based)
+        let currentPos = p.createVector(cam.eyeX, cam.eyeY, cam.eyeZ);
+        let currentRadius = currentPos.mag();
+
+        // Lerp Radius
+        let smoothRadius = p.lerp(currentRadius, targetZ, 0.1);
+
+        // Apply
+        if (currentRadius > 0.1) {
+            currentPos.normalize();
+            currentPos.mult(smoothRadius);
+            cam.setPosition(currentPos.x, currentPos.y, currentPos.z);
         }
 
-        p.orbitControl(1, 1, 0.05);
 
         // Luces
         p.ambientLight(150);
@@ -88,10 +140,10 @@ const gameSketch = (p) => {
         updatePhysics();
         handleHover();
 
-        // Bounds
+        // Bounds - Enhanced visibility for both themes
         p.noFill();
-        p.strokeWeight(2); // Thicker lines to prevent aliasing/deformation
-        p.stroke(isDark ? 50 : 60); // Elegant Slate Grey for light mode
+        p.strokeWeight(isDark ? 2 : 3); // Thicker lines in light mode for contrast
+        p.stroke(isDark ? 50 : 100); // Much darker stroke for light mode visibility
         p.box(CONFIG.BOUNDS_SIZE * 2);
 
         // Z-sorting
@@ -104,6 +156,19 @@ const gameSketch = (p) => {
         for (let m of state.modules) {
             m.draw();
         }
+    };
+
+    // ==========================================
+    // STATE UPDATE HANDLERS
+    // ==========================================
+
+    /**
+     * Called when color hints toggle changes.
+     * Forces re-render to update module colors.
+     */
+    p.updateColorHints = function (enabled) {
+        // State is already updated in global, just force redraw
+        // Modules will read fresh state on next draw cycle
     };
 
     function newRound() {
@@ -136,24 +201,32 @@ const gameSketch = (p) => {
     }
 
     function updatePhysics() {
+        // Simple Impulse-based Collision Resolution
+        // Iterate through all pairs of modules to prevent overlapping.
         for (let i = 0; i < state.modules.length; i++) {
             let m1 = state.modules[i];
             m1.update();
 
             for (let j = i + 1; j < state.modules.length; j++) {
                 let m2 = state.modules[j];
+                // Ignore matched modules (they might disappear or stay static)
                 if (m1.isMatched || m2.isMatched) continue;
 
                 let d = p5.Vector.dist(m1.pos, m2.pos);
-                let minDist = (m1.size + m2.size) * 0.7;
+                let minDist = (m1.size + m2.size) * 0.7; // Buffer zone
 
                 if (d < minDist) {
+                    // Calculate push vector (Normal)
                     let push = p5.Vector.sub(m1.pos, m2.pos).normalize();
-                    let overlap = (minDist - d) * 0.05;
+                    let overlap = (minDist - d) * 0.05; // Soft correction factor
+
+                    // Separate them
                     m1.pos.add(p5.Vector.mult(push, overlap));
                     m2.pos.sub(p5.Vector.mult(push, overlap));
+
+                    // Exchange Momentum (Elastic collision approximation)
                     let vTemp = m1.vel.copy();
-                    m1.vel = m2.vel.copy().mult(0.95);
+                    m1.vel = m2.vel.copy().mult(0.95); // Damping
                     m2.vel = vTemp.mult(0.95);
                 }
             }
@@ -271,7 +344,7 @@ const gameSketch = (p) => {
             if (this.size < 1) return;
             this.p.colorMode(this.p.HSB);
 
-            const useHints = window.globalAppState ? window.globalAppState.colorHintsEnabled : false;
+            const useHints = getColorHintsEnabled();
             let h, s, b;
 
             if (useHints) {
@@ -280,7 +353,7 @@ const gameSketch = (p) => {
                 b = this.branchStyle.b;
             } else {
                 // Tema dinámico para las cajas
-                let isDark = (window.globalAppState && window.globalAppState.isDarkMode !== undefined) ? window.globalAppState.isDarkMode : true;
+                let isDark = getIsDarkMode();
                 if (isDark) {
                     h = 220; s = 20; b = 40; // Dark mode box color
                 } else {
@@ -361,9 +434,9 @@ const gameSketch = (p) => {
             let html = "";
             for (let i = 0; i < state.word.length; i++) {
                 let char = state.word[i];
-                if (i < state.index) html += `<span style="color:#666; text-decoration:line-through">${char}</span>`;
-                else if (i === state.index) html += `<span style="color:var(--accent-color); border-bottom:2px solid">${char}</span>`;
-                else html += `<span style="opacity:0.5">${char}</span>`;
+                if (i < state.index) html += `<span class="char-done">${char}</span>`;
+                else if (i === state.index) html += `<span class="char-current">${char}</span>`;
+                else html += `<span class="char-future">${char}</span>`;
             }
             ui.target.html(html);
         }

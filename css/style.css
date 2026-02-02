@@ -22,26 +22,30 @@
 }
 
 body.light-mode {
-  /* Configuración MODO CLARO - Elegant Paper Palette */
-  --bg-color: #e6e9ef; /* Explicit Light Gray for higher contrast */
-  /* Improved Contrast & Elegance */
-  --text-color: #2c3e50; /* Deep Slate (Not Black) */
+  /* MODO CLARO - Hybrid: Original UI Colors + Soft Warm Backgrounds */
+  --bg-color: #ebe8e3; /* Soft Warm Beige (reduced glare) */
+  
+  /* Text - ORIGINAL Blue-Slate Palette */
+  --text-color: #2c3e50; /* Deep Slate */
   --text-color-light: #5d6d7e; /* Muted Blue-Grey */
   --accent-color: #34495e; /* Elegant Navy */
 
-  --container-bg: rgba(255, 255, 255, 0.85); /* Milky Glass */
-  --container-border: rgba(44, 62, 80, 0.08);
-  --canvas-bg: #e6e9ef;
+  /* Containers - Warm Cream instead of pure white */
+  --container-bg: rgba(252, 250, 247, 0.90); /* Soft Ivory (not pure white) */
+  --container-border: rgba(44, 62, 80, 0.10);
+  --canvas-bg: #ebe8e3; /* Match soft background */
 
+  /* Buttons - ORIGINAL Navy/Slate */
   --primary-btn-bg: #2c3e50;
   --primary-btn-text: #fff;
   --secondary-btn-bg: rgba(44, 62, 80, 0.05);
   --secondary-btn-text: #2c3e50;
   --secondary-btn-border: rgba(44, 62, 80, 0.15);
 
-  --input-bg: rgba(255, 255, 255, 0.9);
-  --input-border: rgba(44, 62, 80, 0.1);
-  --shadow-color: rgba(44, 62, 80, 0.08); /* Colored shadow */
+  /* Inputs - Very soft cream */
+  --input-bg: rgba(255, 253, 250, 0.90); /* Subtle warm tint */
+  --input-border: rgba(44, 62, 80, 0.12);
+  --shadow-color: rgba(44, 62, 80, 0.08);
 }
 
 * {
@@ -68,7 +72,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
+  padding: 0; /* REMOVED PADDING FOR FULL WIDTH */
   transition:
     background-color 0.4s ease,
     color 0.4s ease;
@@ -83,7 +87,7 @@ h1 {
   color: var(--accent-color); /* Title Accent */
   letter-spacing: 4px;
   text-transform: uppercase;
-  padding: 15px 0;
+  padding: 15px 0 10px 0; /* Adjusted padding */
   flex-shrink: 0;
   z-index: 10;
   text-shadow: 0 2px 10px var(--shadow-color);
@@ -100,6 +104,7 @@ h1 {
   position: relative;
   overflow: hidden;
   margin: 0;
+  padding: 0; /* Ensure no internal padding */
 }
 
 #canvas-container {
@@ -107,19 +112,21 @@ h1 {
   justify-content: center;
   align-items: center;
   /* Sutil sombra para dar profundidad al área de dibujo */
-  box-shadow: 0 20px 50px -10px var(--shadow-color);
-  border-radius: 4px; /* Slightly sharper */
+  box-shadow: none; /* Removed shadow for flat look */
+  border-radius: 0; /* Removed border radius to fit edges */
   background: var(--canvas-bg);
   transition:
-    background 0.4s ease,
-    box-shadow 0.4s ease;
-  max-width: 100%;
-  max-height: 100%;
+    background 0.4s ease;
+  width: 100%; /* Force full width */
+  height: 100%; /* Force full height */
+  max-width: none; /* Remove constraints */
+  max-height: none;
 }
 
 canvas {
   display: block;
-  border-radius: 4px;
+  border-radius: 0; /* Removed border radius */
+  touch-action: none; /* Prevent browser zoom/scroll handling */
 }
 
 /* CONTROLES UI */
@@ -166,7 +173,6 @@ canvas {
   display: flex !important;
 }
 
-/* Home UI: Needs Block for overlay flow */
 /* Home UI: Needs Flex for Centering, but Column for flow */
 #home-ui-container.active {
   display: flex !important;
@@ -293,15 +299,35 @@ button#colorHintsButton:hover {
 #nav-container {
   display: flex;
   gap: 10px;
-  margin-bottom: 5px;
+  margin-bottom: 0; /* Removed margin */
   background: var(--container-bg);
   padding: 8px;
+  border-radius: 0 0 12px 12px; /* Top corners flat to stick to header if needed, but here it floats? No, it's under H1. Let's keep it clean. */
   border-radius: 12px;
   border: 1px solid var(--container-border);
   backdrop-filter: blur(10px);
   z-index: 20;
   flex-wrap: wrap; /* Allow wrapping on small screens */
   justify-content: center;
+}
+/* ... */
+/* FOOTER */
+footer {
+  width: 100%;
+  padding: 15px 10px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-color-light);
+  flex-shrink: 0;
+  opacity: 0.8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-top: 1px solid var(--container-border);
+  background: var(--container-bg);
+  backdrop-filter: blur(5px);
+  margin-top: 0; /* Removed margin */
+  transition: color 0.4s ease, border-color 0.4s ease;
 }
 
 .nav-tab {
@@ -332,76 +358,7 @@ button#colorHintsButton:hover {
   color: var(--text-color);
 }
 
-/* TOGGLE SWITCH STYLE */
-.toggle-switch-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: 15px;
-  padding-left: 15px;
-  border-left: 1px solid var(--container-border);
-}
-
-.toggle-label {
-  color: var(--text-color);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  user-select: none;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 36px;
-  height: 20px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--input-bg);
-  transition: .4s;
-  border-radius: 34px;
-  border: 1px solid var(--input-border);
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 2px;
-  bottom: 2px;
-  background-color: var(--text-color-light);
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
-}
-
-input:checked + .slider:before {
-  transform: translateX(16px);
-  background-color: #fff;
-}
-
-/* Hover Effect */
-.switch:hover .slider {
-  border-color: var(--text-color);
-}
+/* Toggle Switch Removed (Unused) */
 
 /* FOOTER */
 footer {
@@ -624,9 +581,6 @@ footer {
   transition: all 0.2s ease;
   cursor: pointer;
 }
-
-/* Character label - Removed in favor of Preview Panel */
-
 
 .mini-module {
   width: 28px;
@@ -875,3 +829,35 @@ footer {
     gap: 6px 12px;
   }
 }
+
+/* =========================================
+   GAME UI STATES (Theming Support)
+   ========================================= */
+
+.char-done {
+  color: var(--text-color-light);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.char-current {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
+  font-weight: 700;
+}
+
+.char-future {
+  color: var(--text-color);
+  opacity: 0.3;
+}
+
+.feedback-msg.success {
+  color: #44ff44; /* Keep bright green for success */
+}
+.feedback-msg.error {
+  color: #ff4444; /* Keep bright red for error */
+}
+
+/* Light mode overrides for better contrast */
+body.light-mode .feedback-msg.success { color: #00aa00; }
+body.light-mode .feedback-msg.error { color: #cc0000; }

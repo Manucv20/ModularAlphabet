@@ -13,6 +13,8 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/style.css?v=3">
+    <!-- Meta Theme Color for Mobile Browsers (Start with Dark Mode) -->
+    <meta name="theme-color" content="#0f0f11">
   </head>
   <body>
     <h1>ALFABETO MODULAR</h1>
@@ -29,7 +31,7 @@
       <button id="themeButton" title="Cambiar tema" aria-label="Cambiar tema oscuro/claro" onclick="toggleGlobalTheme()">☾</button>
 
       <!-- Color Hints Toggle (Circular Button) -->
-      <button id="colorHintsButton" title="Activar/Desactivar colores" aria-label="Activar o desactivar pistas de color" onclick="toggleColorHints()" style="display: none;">🎨</button>
+      <button id="colorHintsButton" title="Activar/Desactivar colores" aria-label="Activar o desactivar pistas de color" onclick="toggleColorHints()">🎨</button>
     </div>
 
     <div id="canvas-wrapper">
@@ -46,13 +48,8 @@
           <div class="legend-section-content">
             <p class="legend-desc">Los módulos se colorean según su rama estructural en el alfabeto.</p>
             <div class="color-guide">
-              <div class="guide-item"><span class="swatch" style="background:#FF0000"></span> A-F</div>
-              <div class="guide-item"><span class="swatch" style="background:#FFCC00"></span> G-L</div>
-              <div class="guide-item"><span class="swatch" style="background:#00CC99"></span> M-R</div>
-              <div class="guide-item"><span class="swatch" style="background:#3366FF"></span> S-X</div>
-              <div class="guide-item"><span class="swatch" style="background:#9933CC"></span> Y-Ñ</div>
-              <div class="guide-item"><span class="swatch" style="background:#FF33CC"></span> 0-9</div>
-              <div class="guide-item"><span class="swatch" style="background:#00CCFF"></span> .?!</div>
+              <!-- Generado dinámicamente por JS (ver home.js) -->
+              <div class="guide-item">Cargando...</div>
             </div>
           </div>
         </div>
@@ -81,14 +78,14 @@
     </div>
 
     <!-- UI Container específico para el Generador -->
-    <div id="ui-container" class="mode-ui" data-mode="generator" style="display:none;">
+    <div id="ui-container" class="mode-ui" data-mode="generator">
       <input id="textInput" type="text" placeholder="Escribe tu frase..." />
       <button id="generateButton">GENERAR</button>
       <button id="saveButton">GUARDAR</button>
     </div>
 
     <!-- UI Placeholder para el Juego -->
-    <div id="game-ui-container" class="mode-ui" data-mode="game" style="display: none;">
+    <div id="game-ui-container" class="mode-ui" data-mode="game">
       <div class="game-hud">
         <div class="score-board">PUNTOS: <span id="scoreVal">0</span></div>
         <div class="target-display">

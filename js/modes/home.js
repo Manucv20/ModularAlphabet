@@ -1,15 +1,11 @@
 const homeSketch = (p) => {
 
-    // Configuración
-    const CONFIG = {
-        MODULE_SIZE: 50,
-        GRID_SIZE: 400
-    };
+    let targetZ = 400; // Objetivo de Radio (Distancia al centro)
+    let modules = []; // Array de módulos flotantes
+    let autoRotateAngle = 0; // Ángulo de rotación automática
+    let cam; // Variable para la cámara
 
-    let modules = [];
-    let cam;
-    let font;
-    let autoRotateAngle = 0; // Estado persistente de rotación
+    let initialTouchDist = 0; // Para Zoom Táctil
 
     // ==========================================
     // SETUP
@@ -22,23 +18,49 @@ const homeSketch = (p) => {
 
         // Cámara Orbit suave
         cam = p.createCamera();
-        cam.setPosition(0, 0, 800);
+        cam.setPosition(0, 0, 400); // Start at Immersive Distance
         cam.lookAt(0, 0, 0);
 
-        // Custom Mouse Wheel interacting with Camera Zoom
+        // Custom Mouse Wheel 
         p.mouseWheel = function (event) {
-            // Move camera Z position based on scroll
-            let newZ = cam.eyeZ + event.delta * 0.5;
+            // LOCK ZOOM WHILE ROTATING
+            if (p.mouseIsPressed) return false;
 
-            // Clamp Zoom Limits
-            if (newZ < 300) newZ = 300;
-            if (newZ > 1200) newZ = 1200;
+            // Update TARGET Z, not immediate position (Smooth)
+            targetZ += event.delta * 0.5;
 
-            cam.setPosition(cam.eyeX, cam.eyeY, newZ);
+            // Clamp Limits
+            if (targetZ < 1) targetZ = 1;
+            if (targetZ > 1200) targetZ = 1200;
 
-            // Prevent default page scrolling when over canvas
             return false;
         };
+
+        // Touch Gestures (Pinch to Zoom)
+        canvas.touchStarted(() => {
+            if (p.touches.length === 2) {
+                initialTouchDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
+                return false;
+            }
+        });
+
+        canvas.touchMoved(() => {
+            if (p.touches.length === 2) {
+                let currentDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
+                let delta = initialTouchDist - currentDist;
+
+                // Sensitivity
+                targetZ += delta * 2;
+
+                // Clamp Limits
+                if (targetZ < 1) targetZ = 1;
+                if (targetZ > 1200) targetZ = 1200;
+
+                initialTouchDist = currentDist;
+                return false;
+            }
+        });
+
 
         // Generar Nube de Letras (Decorativa)
         spawnIntroModules();
@@ -51,20 +73,40 @@ const homeSketch = (p) => {
     // DRAW
     // ==========================================
     p.draw = function () {
-        // Fondo dinámico según tema global
-        let isDark = (window.globalAppState && window.globalAppState.isDarkMode) !== undefined ? window.globalAppState.isDarkMode : true;
-
         // Reset a RGB para el fondo
         p.colorMode(p.RGB);
 
-        if (isDark) {
-            p.background(15, 15, 17); // Match CSS #0f0f11
-        } else {
-            p.background(230, 233, 239); // Match CSS #e6e9ef
+        // Usar clear() para permitir que el fondo CSS (que tiene transición suave) se vea
+        p.clear();
+
+        // CONTROL DE CÁMARA INTELIGENTE
+
+        // 1. Orbit Control (Solo rotación X/Y, Zoom Z desactivado '0')
+        p.orbitControl(1, 1, 0);
+
+        // 2. Camera Interaction Logic
+        // Camera stays at user-defined zoom (no auto-reset).
+
+        // 3. Spherical Zoom Logic (Radius-based)
+        // Calculate current radius (Magnitude of camera position vector)
+        let currentPos = p.createVector(cam.eyeX, cam.eyeY, cam.eyeZ);
+        let currentRadius = currentPos.mag();
+
+        // Lerp the radius, not just Z
+        let smoothRadius = p.lerp(currentRadius, targetZ, 0.1);
+
+        // Apply new radius to the existing vector direction
+        if (currentRadius > 0.1) {
+            currentPos.normalize();
+            currentPos.mult(smoothRadius);
+            cam.setPosition(currentPos.x, currentPos.y, currentPos.z);
         }
 
-        // Rotación de cámara por usuario (OrbitControl)
-        p.orbitControl(1, 1, 0.05);
+        // Auto-rotación suave si no hay interacción
+
+        // 4. Eje Absoluto: Siempre mirar al (0,0,0)
+        // Esto corrige cualquier "Pan" accidental (Shift+Click) que desplace el eje
+        cam.lookAt(0, 0, 0);
 
         // Auto-rotación suave si no hay interacción
         if (!p.mouseIsPressed) {
@@ -119,10 +161,13 @@ const homeSketch = (p) => {
         const numbers = "0123456789";
         const symbols = ".,?!";
 
-        // 1. Garantizar que TODOS los caracteres únicos están presentes al menos una vez
+        // 1. Ensure Variety:
+        // Guarantee that at least one instance of every unique character (A-Z, 0-9, Sym) exists.
         let uniqueChars = (letters + numbers + symbols).split('');
 
-        // 2. Rellenar el resto hasta 60 con mayormente letras (para que no haya tantos números)
+        // 2. Fill Remainder:
+        // Fill the rest of the pool (up to 60) mostly with Letters (90% chance)
+        // to avoid an overabundance of numbers/symbols in the visual cloud.
         let totalCount = 60;
         let remaining = totalCount - uniqueChars.length;
 
@@ -150,6 +195,28 @@ const homeSketch = (p) => {
     // HELPER: Generar Leyenda DOM (Grouped by Branch)
     // ==========================================
     function generateLegendGrid() {
+        // 1. Generate Dynamic Color Guide (Source of Truth: shared.js)
+        const guideContainer = document.querySelector('.color-guide');
+        if (guideContainer && typeof BRANCH_GROUPS !== 'undefined') {
+            guideContainer.innerHTML = ''; // Clear hardcoded HTML
+
+            BRANCH_GROUPS.forEach(group => {
+                let item = document.createElement('div');
+                item.className = 'guide-item';
+
+                // Calculate representative color (Middle of hue range)
+                let hMid = (group.hStart + group.hEnd) / 2;
+                // Handle wrap-around case for Red (350->15)
+                if (group.hStart > group.hEnd) hMid = (group.hStart + group.hEnd + 360) / 2 % 360;
+
+                let colorCss = hsbToCss(hMid, group.s, group.b);
+
+                item.innerHTML = `<span class="swatch" style="background:${colorCss}"></span> ${group.label}`;
+                guideContainer.appendChild(item);
+            });
+        }
+
+        // 2. Generate Alphabet Grid
         const gridContainer = document.getElementById('alphabet-grid');
         if (!gridContainer) return;
         gridContainer.innerHTML = '';
@@ -183,25 +250,21 @@ const homeSketch = (p) => {
                 if (previewVisual) {
                     previewVisual.innerHTML = ''; // Clear previous
                     let largeVisual = visual.cloneNode(true); // Clone the DOM node
-                    // Remove absolute positioning from wrapper if it causes issues, but createCSSModule sets relative usually
                     previewVisual.appendChild(largeVisual);
                 }
 
-                // 3. Update Description
-                if (previewDesc) {
-                    let branchName = "Símbolo";
-                    const letters = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
-                    const numbers = "0123456789";
+                // 3. Update Description (Find which group it belongs to)
+                if (previewDesc && typeof BRANCH_GROUPS !== 'undefined') {
+                    let group = BRANCH_GROUPS.find(g => g.chars.includes(char));
+                    let label = group ? group.label : "Desconocido";
 
-                    if (letters.includes(char)) {
-                        branchName = "Letra";
-                    } else if (numbers.includes(char)) {
-                        branchName = "Número";
-                    } else {
-                        branchName = "Signo";
-                    }
-                    previewDesc.innerText = branchName;
-                    previewDesc.style.color = getBranchColor(char); // Also color the desc
+                    // Add specific type context if needed
+                    if ("0123456789".includes(char)) label += " (Número)";
+                    else if (".,?!-".includes(char)) label += " (Signo)";
+                    else label += " (Letra)";
+
+                    previewDesc.innerText = label;
+                    previewDesc.style.color = getBranchColor(char);
                 }
             };
 
@@ -311,36 +374,34 @@ const homeSketch = (p) => {
                 }
             }
 
-            // Límites del mundo (rebote suave o reposicionamiento)
+            // WORLD BOUNDS
+            // Soft bounce or reset if particles drift too far
             if (this.pos.mag() > 800) {
                 this.pos = p5.Vector.random3D().mult(200);
             }
 
-            // Animación "Graciosa": WOBBLE & PULSE
-            // 1. Variación de tamaño rítmica (Jelly effect)
-            // Desfase basado en la posición para que no pulsen todos a la vez
-            let pulse = Math.sin(this.p.frameCount * 0.1 + this.pos.x * 0.01) * 2; // Mínimo
+            // ANIMATION: WOBBLE & PULSE
+            // 1. Rhythmic Size Variation (Jelly Effect)
+            // Offset based on position so they don't all pulse in sync.
+            let pulse = Math.sin(this.p.frameCount * 0.1 + this.pos.x * 0.01) * 2;
             this.currentSize = this.size + pulse;
 
-            // 2. Rotación "Ola" (Wave Chain)
-            // En vez de girar al azar, la velocidad de giro sigue una onda coordinada por posición
-            // Esto crea un efecto de "cadena" o ola visual
+            // 2. Coordinate Wave Rotation
+            // Rotational speed is influenced by a spatial wave, creating a "Chain Reaction" look.
             let wave = Math.sin(this.p.frameCount * 0.02 + this.pos.x * 0.005 + this.pos.y * 0.005);
-
-            // Velocidad base + Ola (Muy sutil)
             let rotSpeed = 0.002 + (wave * 0.003);
 
-            // 3. Tics Aleatorios (Muy raros ahora)
-            // 0.05% de probabilidad (1 de cada 2000 frames)
+            // 3. Random Twitches
+            // Very rare probability (0.05%) for a sudden spin impulse.
             if (this.p.random() < 0.0005) {
-                this.spinVel = 0.05; // Impulso pequeño
+                this.spinVel = 0.05;
             }
 
-            this.spinVel *= 0.95; // Decaimiento
+            this.spinVel *= 0.95; // Decay
             if (this.spinVel < 0.001) this.spinVel = 0;
 
             this.angleY += rotSpeed + this.spinVel;
-            this.angleX += rotSpeed * 0.5 + this.spinVel; // X gira más lento para estabilidad visual
+            this.angleX += rotSpeed * 0.5 + this.spinVel; // X rotates slower for visual stability
         }
 
         draw() {
@@ -387,4 +448,17 @@ const homeSketch = (p) => {
             }
         }
     }
+
+    // ==========================================
+    // STATE UPDATE HANDLERS
+    // ==========================================
+
+    /**
+     * Called when color hints toggle changes.
+     * Forces re-render to update module colors.
+     */
+    p.updateColorHints = function (enabled) {
+        // State is already updated in global, just force redraw
+        // Modules will read fresh state on next draw cycle
+    };
 };

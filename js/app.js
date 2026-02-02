@@ -19,16 +19,21 @@ window.globalAppState = AppState;
 
 function updateBodyTheme() {
     const btn = document.getElementById('themeButton');
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
 
     // Aplicar clase al body
     if (AppState.isDarkMode) {
         document.body.classList.remove('light-mode');
         if (btn) btn.innerHTML = '☀'; // Icono Sol (para cambiar a día)
         if (btn) btn.setAttribute('title', 'Cambiar a Modo Día');
+        // Update mobile browser bar color (dark)
+        if (metaTheme) metaTheme.setAttribute('content', '#0f0f11');
     } else {
         document.body.classList.add('light-mode');
         if (btn) btn.innerHTML = '☾'; // Icono Luna (para cambiar a noche)
         if (btn) btn.setAttribute('title', 'Cambiar a Modo Noche');
+        // Update mobile browser bar color (warm beige)
+        if (metaTheme) metaTheme.setAttribute('content', '#ebe8e3');
     }
 }
 
@@ -39,7 +44,11 @@ function toggleGlobalTheme() {
     // Actualizar UI
     updateBodyTheme();
 
-    console.log(`Theme toggled. Dark Mode: ${AppState.isDarkMode}`);
+    // CRITICAL: Notify active sketch of theme change
+    // Sketches like generator.js cache colors and need to force re-render
+    if (AppState.currentP5 && typeof AppState.currentP5.updateColorHints === 'function') {
+        AppState.currentP5.updateColorHints(AppState.colorHintsEnabled);
+    }
 }
 
 // ==========================================
@@ -83,17 +92,19 @@ function toggleSection(sectionId) {
 // ==========================================
 
 function loadMode(mode) {
-    // 1. Limpiar instancia anterior
+    // 1. Cleanup Previous Instance
+    // Essential to prevent memory leaks and multiple canvas contexts running simultaneously.
     if (AppState.currentP5) {
         AppState.currentP5.remove();
         AppState.currentP5 = null;
     }
 
-    // 2. Limpiar contenedor
+    // 2. Reset Container
     const container = document.getElementById('canvas-container');
     if (container) container.innerHTML = '';
 
-    // 3. Cargar nuevo sketch
+    // 3. Initialize New Sketch
+    // Selects the factory function based on mode string.
     let sketchFunction = null;
 
     if (mode === 'generator' && typeof generatorSketch !== 'undefined') {
@@ -105,9 +116,13 @@ function loadMode(mode) {
     }
 
     if (sketchFunction) {
-        AppState.currentP5 = new p5(sketchFunction, 'canvas-container');
+        // 1. Update UI STATE FIRST 
+        // This ensures DOM elements (like panels) are hidden/shown BEFORE p5 measures canvas size.
         AppState.currentMode = mode;
         updateUI();
+
+        // 2. Create new p5 instance (triggers setup() -> updateCanvasSize())
+        AppState.currentP5 = new p5(sketchFunction, 'canvas-container');
     } else {
         console.error(`Sketch for mode '${mode}' not found.`);
     }
@@ -123,7 +138,6 @@ function updateUI() {
         }
     });
 
-    // Actualizar contenedores UI
     // Actualizar contenedores UI
     document.querySelectorAll('.mode-ui').forEach(ui => {
         if (ui.dataset.mode === AppState.currentMode) {
@@ -172,6 +186,3 @@ window.onerror = function (msg, url, line) {
 window.toggleGlobalTheme = toggleGlobalTheme;
 window.toggleColorHints = toggleColorHints;
 window.toggleSection = toggleSection;
-
-// Debug log
-console.log('App.js loaded. State initialized.');

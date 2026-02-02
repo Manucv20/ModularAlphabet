@@ -26,6 +26,7 @@ El proyecto destaca por su atención al detalle visual y técnico:
 - **Estructura Modular:** Código organizado profesionalmente en carpetas (`css/`, `js/modes/`, `js/libs/`).
 - **Diseño Responsivo Total:**
   - Funciona perfectamente en Móviles, Tablets y Escritorio.
+  - **Interacción Táctil:** Soporte nativo para Pinch-to-Zoom (zoom con dos dedos) en los entornos 3D.
   - Interfaz adaptativa: Menús táctiles, cuadrículas flexibles (hasta 12 columnas) y paneles colapsables.
 - **Accesibilidad y UX:**
   - Tipografía Inter para máxima legibilidad.
