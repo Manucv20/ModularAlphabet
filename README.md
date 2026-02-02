@@ -1,45 +1,52 @@
-# Alfabeto Modular
+# Alfabeto Modular 💠
 
-Aplicación web experimental para la visualización de texto mediante un sistema de alfabeto modular abstracto.
+Una exploración interactiva y visual sobre la traducción de lenguaje humano a geometría abstracta. Este proyecto transforma texto alfanumérico en patrones modulares únicos basados en sistemas binarios y posicionales.
 
-## 📖 Descripción
+## 🌟 Características Principales
 
-Esta aplicación traduce texto alfanumérico en una representación visual geométrica. Cada carácter es sustituido por un patrón único de puntos distribuidos en una cuadrícula de 3x3 (excluyendo el centro exacto), creando un lenguaje visual minimalista y moderno.
+### 1. **Modo Inicio (Exploración Visual)**
+- **Nube de Caracteres 3D:** Un entorno inmersivo donde los módulos flotan y reaccionan al cursor.
+- **Leyenda Interactiva:**
+  - **Panel de Previsualización Visual:** Al pasar el ratón o tocar un símbolo en la guía, verás su construcción geométrica en grande, su categoría (Letra, Número, Signo) y su color correspondiente.
+  - **Sistema Cromático:** Los módulos se colorean según su "rama" en el alfabeto para facilitar la identificación.
 
-El proyecto está construido utilizando **p5.js**, una biblioteca de JavaScript para la codificación creativa.
+### 2. **Modo Generador**
+- **Traducción Instantánea:** Escribe cualquier frase y observa su conversión a módulos geométricos en tiempo real.
+- **Temas de Alto Contraste:** Cambia entre Modo Día (Fondo Blanco) y Modo Noche (Fondo Negro) para una legibilidad óptima.
+- **Exportación:** Guarda tus composiciones como imágenes PNG.
 
-## 🚀 Funcionalidades
+### 3. **Modo Juego 3D (Desafío)**
+- **Aprende Jugando:** Un entorno tridimensional donde debes encontrar la letra modular correcta que corresponde a la palabra objetivo.
+- **Progresión:** Acumula puntos y supera niveles mientras memorizas los patrones.
 
-- **Traducción en Tiempo Real:** Convierte cualquier texto introducido por el usuario en su representación modular al instante.
-- **Sistema de Codificación Binaria:** 
-  - Cada letra del alfabeto (A-Z) se asigna a un número secuencial (A=1, B=2, etc.).
-  - La letra 'Ñ' tiene su propio valor (27).
-  - Los números (0-9) y signos de puntuación básicos también tienen asignaciones únicas.
-  - Este valor numérico se convierte a un binario de 8 bits.
-  - Cada bit activa o desactiva uno de los 8 puntos posibles en la celda del carácter.
-- **Interfaz Interactiva:**
-  - Campo de texto para introducir frases personalizadas.
-  - Botón "GENERAR" para procesar el texto.
-  - Botón "GUARDAR" para descargar la composición actual como una imagen PNG.
-- **Diseño Responsivo:** El lienzo se ajusta automáticamente al tamaño de la pantalla, recalculando la distribución de las letras para asegurar que todo el mensaje sea visible.
-- **Interactividad Visual:**
-  - Animación de entrada (fade-in) para cada carácter.
-  - Efecto "Hover": Al pasar el ratón sobre un símbolo modular, se revela el carácter original que representa.
+## 🎨 Diseño y Tecnología
 
-## 🛠 Tecnologías Utilizadas
+El proyecto destaca por su atención al detalle visual y técnico:
 
-- **HTML5 & CSS3:** Estructura y estilos de la interfaz de usuario, con un diseño limpio y tipografía moderna (Inter).
-- **JavaScript (ES6):** Lógica de la aplicación.
-- **p5.js:** Renderizado de gráficos en el elemento `<canvas>`, manejo de vectores y eventos de dibujo.
+- **Estructura Modular:** Código organizado profesionalmente en carpetas (`css/`, `js/modes/`, `js/libs/`).
+- **Diseño Responsivo Total:**
+  - Funciona perfectamente en Móviles, Tablets y Escritorio.
+  - Interfaz adaptativa: Menús táctiles, cuadrículas flexibles (hasta 12 columnas) y paneles colapsables.
+- **Accesibilidad y UX:**
+  - Tipografía Inter para máxima legibilidad.
+  - Footer y menús con estilo "Glassmorphism".
+  - Feedback visual constante (hover, active states).
 
-## 📂 Origen
+## 🛠 Tecnologías
 
-Este proyecto es un experimento de codificación creativa desarrollado por **Manuel Cañas Vidaller**. Explora la relación entre los datos (texto), los sistemas numéricos y la representación visual.
+- **HTML5 & CSS3:** Layouts modernos con CSS Grid/Flexbox y variables CSS para tematización.
+- **JavaScript (ES6+):** Lógica modular y orientada a objetos.
+- **p5.js:** Motor gráfico para el renderizado 3D y 2D en los elementos `<canvas>`.
 
-## 📦 Instalación y Uso
+## 📂 Instalación
 
-No requiere instalación de dependencias ni servidores complejos (es una aplicación estática del lado del cliente).
+No requiere instalación de dependencias complejas. Es una aplicación web estática:
 
-1. Clona este repositorio o descarga los archivos.
-2. Abre el archivo `index.html` en tu navegador web moderno preferido.
-3. ¡Escribe y experimenta!
+1. Clona el repositorio.
+2. Abre `index.html` en tu navegador.
+3. ¡Disfruta!
+
+---
+
+**Autor:** Manuel Cañas Vidaller  
+*Proyecto Experimental de Codificación Creativa*

@@ -1,0 +1,877 @@
+:root {
+  /* Configuración MODO OSCURO (Default) - Professional Palette */
+  --bg-color: #0f0f11; /* Rich Black */
+  /* Improved Contrast */
+  --text-color: #f0f0f0; /* Brighter White */
+  --text-color-light: #b0b0b0; /* Lighter Gray for better read on dark */
+  --accent-color: #a3b8ef; /* Soft Periwinkle */
+
+  --container-bg: rgba(20, 20, 25, 0.6); /* Glass effect dark */
+  --container-border: rgba(255, 255, 255, 0.1);
+  --canvas-bg: #0f0f11; /* Match body bg */
+
+  --primary-btn-bg: #a3b8ef;
+  --primary-btn-text: #0f0f11;
+  --secondary-btn-bg: rgba(255, 255, 255, 0.05);
+  --secondary-btn-text: #e0e0e0;
+  --secondary-btn-border: rgba(255, 255, 255, 0.2);
+
+  --input-bg: rgba(0, 0, 0, 0.3);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+body.light-mode {
+  /* Configuración MODO CLARO - Elegant Paper Palette */
+  --bg-color: #e6e9ef; /* Explicit Light Gray for higher contrast */
+  /* Improved Contrast & Elegance */
+  --text-color: #2c3e50; /* Deep Slate (Not Black) */
+  --text-color-light: #5d6d7e; /* Muted Blue-Grey */
+  --accent-color: #34495e; /* Elegant Navy */
+
+  --container-bg: rgba(255, 255, 255, 0.85); /* Milky Glass */
+  --container-border: rgba(44, 62, 80, 0.08);
+  --canvas-bg: #e6e9ef;
+
+  --primary-btn-bg: #2c3e50;
+  --primary-btn-text: #fff;
+  --secondary-btn-bg: rgba(44, 62, 80, 0.05);
+  --secondary-btn-text: #2c3e50;
+  --secondary-btn-border: rgba(44, 62, 80, 0.15);
+
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --input-border: rgba(44, 62, 80, 0.1);
+  --shadow-color: rgba(44, 62, 80, 0.08); /* Colored shadow */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  background-color: var(--bg-color);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+}
+
+/* HEADER */
+h1 {
+  width: 100%;
+  text-align: center;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 200; /* Ultra Light for modern feel */
+  color: var(--accent-color); /* Title Accent */
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  padding: 15px 0;
+  flex-shrink: 0;
+  z-index: 10;
+  text-shadow: 0 2px 10px var(--shadow-color);
+  transition: color 0.4s ease;
+}
+
+/* AREA CENTRAL (CANVAS) */
+#canvas-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+}
+
+#canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Sutil sombra para dar profundidad al área de dibujo */
+  box-shadow: 0 20px 50px -10px var(--shadow-color);
+  border-radius: 4px; /* Slightly sharper */
+  background: var(--canvas-bg);
+  transition:
+    background 0.4s ease,
+    box-shadow 0.4s ease;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+canvas {
+  display: block;
+  border-radius: 4px;
+}
+
+/* CONTROLES UI */
+.game-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: var(--text-color);
+}
+.score-board {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-color);
+  margin-bottom: 5px;
+}
+.target-display {
+  background: rgba(0,0,0,0.2);
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 10px;
+  border: 1px solid var(--container-border);
+}
+.target-display .label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  display: block;
+  opacity: 0.7;
+}
+.target-display h2 {
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  margin: 5px 0 0 0;
+}
+/* UNIVERSAL UI VISIBILITY LOGIC */
+.mode-ui {
+  display: none !important; /* Hide by default, override any inline styles */
+}
+
+/* Generator UI: Needs Flex for alignment */
+#ui-container.active {
+  display: flex !important;
+}
+
+/* Home UI: Needs Block for overlay flow */
+/* Home UI: Needs Flex for Centering, but Column for flow */
+#home-ui-container.active {
+  display: flex !important;
+  flex-direction: column;
+  /* True Center Alignment */
+  align-items: center; 
+  justify-content: center; 
+}
+
+/* Game UI: Needs Block/Flex depending on inner HUD */
+#game-ui-container.active {
+  display: block !important; 
+}
+
+.instructions {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+#ui-container {
+  width: 100%;
+  max-width: 550px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: var(--container-bg);
+  border: 1px solid var(--container-border);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px); /* Safari support */
+  flex-shrink: 0;
+  z-index: 10;
+  box-shadow: 0 8px 32px 0 var(--shadow-color);
+  margin-bottom: 10px;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px 16px;
+  font-size: 15px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+input::placeholder {
+  color: var(--text-color-light);
+  opacity: 1; /* Ensure full contrast */
+}
+input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--shadow-color);
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+button:active {
+  transform: scale(0.98);
+}
+
+button#generateButton {
+  background-color: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+button#saveButton {
+  background-color: var(--secondary-btn-bg);
+  color: var(--secondary-btn-text);
+  border: 1px solid var(--secondary-btn-border);
+  font-weight: 500;
+}
+button#saveButton:hover {
+  background-color: var(--secondary-btn-border);
+}
+
+button#themeButton,
+button#colorHintsButton {
+  background-color: transparent;
+  color: var(--text-color);
+  font-size: 26px; /* Larger icons for better visibility */
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px; /* Touch-friendly minimum */
+  min-height: 48px;
+}
+button#themeButton:hover,
+button#colorHintsButton:hover {
+  background-color: var(--secondary-btn-bg);
+  border-color: var(--secondary-btn-border);
+  transform: rotate(15deg);
+}
+
+/* NAVEGACIÓN TAB */
+#nav-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+  background: var(--container-bg);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--container-border);
+  backdrop-filter: blur(10px);
+  z-index: 20;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  justify-content: center;
+}
+
+.nav-tab {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-light);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 44px; /* Touch-friendly */
+  display: flex;
+  align-items: center;
+}
+
+.nav-tab.active {
+  background: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.nav-tab:hover:not(.active) {
+  background: var(--secondary-btn-bg);
+  color: var(--text-color);
+}
+
+/* TOGGLE SWITCH STYLE */
+.toggle-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 15px;
+  padding-left: 15px;
+  border-left: 1px solid var(--container-border);
+}
+
+.toggle-label {
+  color: var(--text-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--input-bg);
+  transition: .4s;
+  border-radius: 34px;
+  border: 1px solid var(--input-border);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--text-color-light);
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+  background-color: #fff;
+}
+
+/* Hover Effect */
+.switch:hover .slider {
+  border-color: var(--text-color);
+}
+
+/* FOOTER */
+footer {
+  width: 100%;
+  padding: 15px 10px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-color-light);
+  flex-shrink: 0;
+  opacity: 0.8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-top: 1px solid var(--container-border);
+  background: var(--container-bg);
+  backdrop-filter: blur(5px);
+  margin-top: 10px;
+  transition: color 0.4s ease, border-color 0.4s ease;
+}
+/* INTRO & LEGEND STYLES */
+#home-ui-container {
+  pointer-events: none; /* Allow canvas interaction behind */
+  display: flex;
+  justify-content: center; /* Center legend */
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.legend-overlay {
+  pointer-events: auto;
+  background: var(--container-bg); /* Use defined variable */
+  border: 1px solid var(--container-border);
+  backdrop-filter: blur(16px); /* Stronger blur */
+  padding: 16px;
+  border-radius: 12px;
+  width: min(580px, 85vw); /* Fluid width - responsive but capped */
+  max-height: calc(100vh - 100px); /* Character Preview Panel (New Visual Legend) */
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: width 0.3s ease, all 0.3s ease;
+}
+
+#char-preview-panel {
+  background: var(--container-bg); /* More solid background */
+  border: 1px solid var(--accent-color);
+  border-radius: 12px;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space out content */
+  gap: 15px;
+  min-height: 70px;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  /* Sticky removed as it conflicts with overflow:hidden of collapse */
+  position: relative; 
+  backdrop-filter: blur(12px);
+}
+
+.preview-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.preview-visual-host {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Escalar el módulo visual dentro del preview para que se vea GRANDE */
+.preview-visual-host .alpha-cell {
+  transform: scale(1.5); /* 1.5x Size */
+  border-color: transparent; /* Remove border for cleaner look */
+  background: transparent;
+  pointer-events: none;
+}
+
+.preview-char {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-color);
+  min-width: 30px;
+  text-align: center;
+}
+
+.preview-info {
+  font-size: 12px;
+  color: var(--text-color-light);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: right;
+  max-width: 120px;
+  line-height: 1.2;
+}
+
+.legend-overlay h2 {
+  font-size: 18px;
+  margin: 0 0 10px 0;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--container-border);
+  padding-bottom: 8px;
+  text-align: center;
+}
+
+.legend-desc {
+  font-size: 13px;
+  color: var(--text-color);
+  opacity: 0.9;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.color-guide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.guide-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-color);
+  background: rgba(0,0,0,0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Legend Container - Flexible multi-column grid */
+#alphabet-grid {
+  display: grid;
+  /* Max 12 columns mechanism */
+  grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
+  width: 100%;
+  max-width: 500px;
+  min-width: 280px;
+  margin: 0 auto;
+  gap: 8px;
+  justify-content: center;
+}
+
+
+/* Legend Section Collapse Styles */
+.legend-section {
+  margin-bottom: 12px;
+}
+
+.legend-section h3 {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-color-light);
+  margin: 0 0 8px 0;
+}
+
+.legend-section h3::before {
+  content: '▶';
+  font-size: 10px;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.legend-section:not(.collapsed) h3::before {
+  transform: rotate(90deg);
+}
+
+.legend-section-content {
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.legend-section.collapsed .legend-section-content {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+}
+
+/* Character Cell Styles */
+.alpha-cell {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  background: var(--input-bg);
+  border: 1px solid var(--container-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Character label - Removed in favor of Preview Panel */
+
+
+.mini-module {
+  width: 28px;
+  height: 28px;
+  /* Module takes full cell space */
+  transition: transform 0.3s ease;
+}
+
+/* Enhanced Hover Effects - Only for devices with hover capability */
+@media (hover: hover) {
+  .alpha-cell:hover .mini-module {
+    transform: scale(1.15);
+  }
+
+  .alpha-cell:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-color);
+    background: var(--secondary-btn-bg);
+  }
+
+  .legend-section h3:hover {
+    color: var(--accent-color);
+  }
+}
+
+/* Touch devices - simpler feedback with opacity */
+@media (hover: none) {
+  .alpha-cell:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+
+  /* Show tooltip on touch/tap */
+  .alpha-cell:active .char-label {
+    opacity: 1;
+  }
+  
+  .legend-section h3:active {
+    opacity: 0.8;
+  }
+
+  /* Disable complex transitions on touch devices */
+  .mini-module {
+    transition: opacity 0.2s ease;
+  }
+}
+
+/* Smooth Scroll */
+.legend-overlay {
+  scroll-behavior: smooth;
+}
+
+.legend-overlay::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legend-overlay::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.legend-overlay::-webkit-scrollbar-thumb {
+  background: var(--container-border);
+  border-radius: 3px;
+}
+
+.legend-overlay::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* ============================================
+    RESPONSIVE DESIGN - Optimized Breakpoints
+    ============================================ */
+
+/* Medium Devices (Tablets, Large Phones) */
+@media (max-width: 900px) and (min-width: 601px) {
+  .legend-overlay {
+    width: 90%;
+    max-width: 400px;
+    padding: 12px;
+    max-height: calc(100vh - 100px);
+  }
+
+  #alphabet-grid {
+    /* Tablet: 30px min, 10px gap */
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    max-width: 500px;
+    gap: 10px;
+  }
+
+  .alpha-cell {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mini-module {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Mobile Devices (Phones) */
+@media (max-width: 600px) and (min-width: 376px) {
+  h1 {
+    font-size: 18px;
+    padding: 8px 0;
+    letter-spacing: 2px;
+  }
+
+  #nav-container {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .nav-tab {
+    font-size:12px;
+    padding: 8px 14px;
+    min-height: 40px;
+  }
+
+  button#themeButton,
+  button#colorHintsButton {
+    font-size: 22px;
+    padding: 8px 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .legend-overlay {
+    width: 95%;
+    padding: 10px;
+    max-height: calc(100vh - 80px);
+    border-radius: 10px;
+  }
+
+  .legend-section h3 {
+    font-size: 11px;
+  }
+
+  .legend-desc {
+    font-size: 10px;
+  }
+
+  .color-guide {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .guide-item {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  #alphabet-grid {
+    /* Mobile: 30px min, 6px gap */
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    max-width: 450px; /* Enforces 12-col wrap */
+    gap: 6px;
+  }
+
+  .alpha-cell {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mini-module {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Extra Small Mobile Devices (≤375px) */
+@media (max-width: 375px) {
+  h1 {
+    font-size: 16px;
+    padding: 6px 0;
+    letter-spacing: 1px;
+  }
+
+  #nav-container {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .nav-tab {
+    font-size: 11px;
+    padding: 6px 10px;
+    min-height: 38px;
+  }
+
+  button#themeButton,
+  button#colorHintsButton {
+    font-size: 20px;
+    padding: 6px 8px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .legend-overlay {
+    width: 95vw;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .legend-overlay h2 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  #alphabet-grid {
+    /* Small Mobile: 26px min, 6px gap */
+    grid-template-columns: repeat(auto-fit, minmax(26px, 1fr));
+    gap: 6px;
+  }
+
+  .alpha-cell {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mini-module {
+    width: 14px;
+    height: 14px;
+  }
+
+  .legend-section h3 {
+    font-size: 10px;
+  }
+
+  .legend-desc {
+    font-size: 9px;
+  }
+}
+
+/* Landscape Mobile - Optimize for horizontal space */
+@media (max-width: 900px) and (orientation: landscape) {
+  .legend-overlay {
+    max-height: calc(100vh - 60px);
+    width: 70%;
+    max-width: 600px;
+    padding: 10px 14px;
+  }
+
+  #alphabet-grid {
+    /* Landscape: 32px min, 12px col-gap */
+    grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+    gap: 6px 12px;
+  }
+}

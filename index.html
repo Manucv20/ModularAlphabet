@@ -1,161 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Alfabeto Modular</title>
     <!-- Viewport optimizado para evitar zoom accidental en inputs y mejorar respuesta -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-    <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html, body {
-        width: 100%;
-        height: 100%;
-        overflow: hidden; /* Evita scroll en la página principal para sensación de App */
-      }
-      body {
-        background-color: #f7f7f7;
-        font-family: "Inter", "Segoe UI", sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between; /* Distribuye espacio: Header - Canvas - UI - Footer */
-        padding: 10px;
-      }
-
-      /* HEADER */
-      h1 {
-        width: 100%;
-        text-align: center;
-        font-size: clamp(24px, 5vw, 40px); /* Tamaño fluido */
-        font-weight: 300;
-        color: #555;
-        letter-spacing: 2px;
-        padding: 10px 0;
-        flex-shrink: 0; /* No encoger */
-        z-index: 10;
-      }
-
-      /* AREA CENTRAL (CANVAS) */
-      #canvas-wrapper {
-        flex: 1; /* Ocupa todo el espacio disponible */
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        margin: 10px 0;
-      }
-
-      /* El div que p5.js usa (o crearemos) */
-      #canvas-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border-radius: 12px;
-        background: #fff;
-        /* El tamaño del canvas se controlará desde JS, pero CSS asegura que no desborde */
-        max-width: 100%;
-        max-height: 100%;
-      }
-
-      canvas {
-        display: block; /* Elimina espacio fantasma inline */
-        border-radius: 12px;
-      }
-
-      /* CONTROLES UI */
-      #ui-container {
-        width: 100%;
-        max-width: 600px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        padding: 10px;
-        background: rgba(255,255,255,0.8);
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
-        flex-shrink: 0;
-        z-index: 10;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      }
-
-      input {
-        flex: 1;
-        min-width: 200px;
-        padding: 12px 16px;
-        font-size: 16px; /* Evita zoom automático en iOS */
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        outline: none;
-        transition: border-color 0.3s;
-      }
-      input:focus {
-        border-color: #000;
-      }
-
-      button {
-        padding: 12px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        background-color: #111;
-        color: #fff;
-        transition: transform 0.1s, opacity 0.2s;
-      }
-      button:active {
-        transform: scale(0.96);
-      }
-      button#generateButton {
-        background-color: #111;
-      }
-      button#saveButton {
-        background-color: #fff;
-        color: #111;
-        border: 1px solid #ddd;
-      }
-
-      /* FOOTER */
-      footer {
-        padding: 10px;
-        text-align: center;
-        font-size: 11px;
-        color: #aaa;
-        flex-shrink: 0;
-      }
-
-    </style>
+    <link rel="stylesheet" href="css/style.css?v=3">
   </head>
   <body>
     <h1>ALFABETO MODULAR</h1>
+
+    <div id="nav-container">
+      <button class="nav-tab active" data-mode="home">INICIO</button>
+      <button class="nav-tab" data-mode="generator">GENERADOR</button>
+      <button class="nav-tab" data-mode="game">JUEGO 3D</button>
+
+      <!-- Separator -->
+      <div style="flex-grow: 1;"></div>
+
+      <!-- Theme Toggle -->
+      <button id="themeButton" title="Cambiar tema" aria-label="Cambiar tema oscuro/claro" onclick="toggleGlobalTheme()">☾</button>
+
+      <!-- Color Hints Toggle (Circular Button) -->
+      <button id="colorHintsButton" title="Activar/Desactivar colores" aria-label="Activar o desactivar pistas de color" onclick="toggleColorHints()" style="display: none;">🎨</button>
+    </div>
 
     <div id="canvas-wrapper">
       <div id="canvas-container"></div>
     </div>
 
-    <div id="ui-container">
+    <!-- UI Container para Home / Intro -->
+    <div id="home-ui-container" class="mode-ui" data-mode="home">
+      <div class="legend-overlay" id="legendOverlay">
+        <h2>GUÍA DE CÓDIGOS</h2>
+        
+        <div class="legend-section collapsed" id="section1">
+          <h3 onclick="toggleSection('section1')">SISTEMA CROMÁTICO</h3>
+          <div class="legend-section-content">
+            <p class="legend-desc">Los módulos se colorean según su rama estructural en el alfabeto.</p>
+            <div class="color-guide">
+              <div class="guide-item"><span class="swatch" style="background:#FF0000"></span> A-F</div>
+              <div class="guide-item"><span class="swatch" style="background:#FFCC00"></span> G-L</div>
+              <div class="guide-item"><span class="swatch" style="background:#00CC99"></span> M-R</div>
+              <div class="guide-item"><span class="swatch" style="background:#3366FF"></span> S-X</div>
+              <div class="guide-item"><span class="swatch" style="background:#9933CC"></span> Y-Ñ</div>
+              <div class="guide-item"><span class="swatch" style="background:#FF33CC"></span> 0-9</div>
+              <div class="guide-item"><span class="swatch" style="background:#00CCFF"></span> .?!</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="legend-section collapsed" id="section2">
+          <h3 onclick="toggleSection('section2')">ALFABETO BINARIO</h3>
+          <div class="legend-section-content">
+            <p class="legend-desc">Cada carácter es una representación de 8 bits posicionales.</p>
+            
+            <!-- Nueva área de previsualización visual -->
+            <div id="char-preview-panel">
+              <div class="preview-left">
+                <div class="preview-visual-host" id="previewVisual"></div>
+                <span class="preview-char" id="previewText">?</span>
+              </div>
+              <span class="preview-info" id="previewDesc">Toca un símbolo</span>
+            </div>
+
+            <div id="alphabet-grid">
+              <!-- Se rellenará dinámicamente con JS -->
+              <div class="alpha-placeholder">Generando guía...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI Container específico para el Generador -->
+    <div id="ui-container" class="mode-ui" data-mode="generator" style="display:none;">
       <input id="textInput" type="text" placeholder="Escribe tu frase..." />
       <button id="generateButton">GENERAR</button>
       <button id="saveButton">GUARDAR</button>
+    </div>
+
+    <!-- UI Placeholder para el Juego -->
+    <div id="game-ui-container" class="mode-ui" data-mode="game" style="display: none;">
+      <div class="game-hud">
+        <div class="score-board">PUNTOS: <span id="scoreVal">0</span></div>
+        <div class="target-display">
+          <span class="label">TRADUCE:</span>
+          <h2 id="targetWordDisplay">Cargando...</h2>
+        </div>
+        <div id="feedbackDisplay" class="feedback-msg"></div>
+        <div class="instructions">Busca y haz clic en la letra modular correcta</div>
+      </div>
     </div>
 
     <footer>
       Hecho con p5.js • Proyecto experimental • Manuel Cañas Vidaller
     </footer>
 
-    <script src="libs/p5.min.js"></script>
-    <script src="sketch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="js/modes/shared.js"></script>
+    <script src="js/modes/home.js"></script>
+    <script src="js/modes/generator.js"></script>
+    <script src="js/modes/game.js"></script>
+
+    <!-- Main Logic -->
+    <script src="js/app.js"></script>
+    <script>
+      // Fallback simple para desarrollo o si algo falla en carga
+      console.log('Modular Alphabet Loaded');
+    </script>
   </body>
 </html>
