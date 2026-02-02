@@ -71,9 +71,13 @@ const gameSketch = (p) => {
 
         // Touch Gestures (Pinch to Zoom)
         let initialTouchDist = 0;
+        let touchZoomActive = false; // Only activate zoom after movement threshold
+        const PINCH_THRESHOLD = 10; // Minimum pixel movement to activate zoom
+
         canvas.touchStarted(() => {
             if (p.touches.length === 2) {
                 initialTouchDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
+                touchZoomActive = false; // Reset on new touch
                 return false;
             }
         });
@@ -83,12 +87,20 @@ const gameSketch = (p) => {
                 let currentDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
                 let delta = initialTouchDist - currentDist;
 
-                targetZ += delta * 2;
+                // Only activate zoom after crossing movement threshold
+                if (!touchZoomActive && Math.abs(delta) > PINCH_THRESHOLD) {
+                    touchZoomActive = true;
+                }
 
-                if (targetZ < 1) targetZ = 1;
-                if (targetZ > 1200) targetZ = 1200;
+                // Apply zoom only if gesture is active
+                if (touchZoomActive) {
+                    targetZ += delta * 2;
 
-                initialTouchDist = currentDist;
+                    if (targetZ < 1) targetZ = 1;
+                    if (targetZ > 1200) targetZ = 1200;
+
+                    initialTouchDist = currentDist;
+                }
                 return false;
             }
         });
