@@ -79,26 +79,56 @@ body {
 }
 
 /* HEADER */
+/* HEADER */
 h1 {
   width: 100%;
   text-align: center;
   font-size: clamp(24px, 4vw, 36px);
   font-weight: 200;
+  
+  /* Reset H1 to transparent/default layout */
+  background-color: transparent;
   color: var(--accent-color);
-  letter-spacing: 12px; /* Very wide spacing */
+  
+  letter-spacing: 12px;
   text-transform: uppercase;
   padding: 15px 0 10px 0;
   flex-shrink: 0;
   z-index: 10;
   text-shadow: 0 2px 10px var(--shadow-color);
-  transition: color 0.4s ease;
-  position: relative; /* Context for absolute canvas */
+  position: relative;
 }
 
-/* Container for text to ensure z-index layering */
+/* 
+   CONSTRAINED BACKGROUND 
+   Only applied to the text wrapper, centered within H1
+*/
 h1 .text-layer {
   position: relative;
   z-index: 2;
+  display: inline-block;
+  padding: 4px 24px; /* Matches button feel */
+  border-radius: 8px; /* Matches UI rounded corners */
+  
+  /* PALETTE SYNC: Match Active Tab */
+  background-color: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+  
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  
+  transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Specific override removed - utilizing variables handles it automatically */
+body.light-mode h1 .text-layer {
+  background-color: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+}
+
+/* Remove wide h1 overrides */
+body.light-mode h1 {
+  background-color: transparent;
+  color: inherit;
 }
 
 /* Global Animation Canvas */
@@ -390,8 +420,6 @@ footer {
   color: var(--text-color);
 }
 
-/* Toggle Switch Removed (Unused) */
-
 /* FOOTER */
 footer {
   width: 100%;
@@ -502,11 +530,19 @@ footer {
 
 .legend-overlay h2 {
   font-size: 18px;
-  margin: 0 0 10px 0;
-  color: var(--accent-color);
-  border-bottom: 1px solid var(--container-border);
-  padding-bottom: 8px;
+  margin: 0 0 16px 0; /* More space below */
+  
+  /* PALETTE SYNC: Match Title & Active Button */
+  background-color: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+  padding: 8px 16px;
+  border-radius: 6px;
+  
   text-align: center;
+  border: none; /* Remove underline */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle lift */
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .legend-desc {
@@ -531,9 +567,10 @@ footer {
   gap: 8px;
   font-size: 12px;
   color: var(--text-color);
-  background: rgba(0,0,0,0.1);
+  background: var(--secondary-btn-bg); /* Theme aware background */
   padding: 4px 8px;
   border-radius: 4px;
+  border: 1px solid var(--secondary-btn-border); /* Added subtle border definition */
 }
 
 .swatch {
