@@ -71,7 +71,12 @@ const AnimatedHeader = (() => {
                 opacity: 0, // For fade transition
                 scale: 0.5, // For scale transition
                 x: 0,
-                y: 0
+                y: 0,
+                // Organic Rotation Physics (Randomized per module)
+                speedX: 0.1 + Math.random() * 0.15, // Slow var X
+                speedY: 0.8 + Math.random() * 0.4,  // Main Y rotation var
+                phaseX: Math.random() * Math.PI * 2,
+                phaseY: Math.random() * Math.PI * 2
             });
         });
 
@@ -104,7 +109,7 @@ const AnimatedHeader = (() => {
 
             p.draw = function () {
                 p.clear();
-                rotation += 0.012; // Continuous rotation
+                rotation += 0.002; // Global time base
 
                 // Render active modules
                 letterData.forEach(item => {
@@ -173,25 +178,45 @@ const AnimatedHeader = (() => {
         p.translate(item.x, item.y, 0);
         p.scale(item.scale);
 
-        // Rotation with individual phase offset
-        p.rotateY(globalRot + item.index * 0.2);
-        p.rotateX((globalRot * 0.5) + item.index * 0.1);
+        // Organic Rotation: Unique speed and phase for every module
+        // This ensures they never look "synced" or repetitive
+        p.rotateY(globalRot * item.speedY + item.phaseY);
+        p.rotateX(globalRot * item.speedX + item.phaseX);
 
         p.colorMode(p.HSB, 360, 100, 100, 1);
 
         const style = getBranchStyle(item.char);
         const points = getPointsForChar(item.char);
-        const size = 18; // Module Size
+        const size = 18; // Reduced Size
+
+        // Contrast Adjustment
+        // Logic Flipped because Text Layer Background determines contrast
+        let finalB = style.b;
+        let strokeW = 1.2;
+
+        const isDarkAppMode = getIsDarkMode();
+
+        if (isDarkAppMode) {
+            // App is DARK -> Header BG is BLUE (#a3b8ef)
+            // Modules must be DARK/STRONG to contrast with the mid-tone Blue
+            finalB = style.b * 0.4; // Slightly darker for clear contrast against blue
+            strokeW = 1.6;
+        } else {
+            // App is LIGHT -> Header BG is DARK SLATE (#2c3e50)
+            // Modules must be BRIGHT to pop against dark slate
+            finalB = 100;
+            strokeW = 1.4; // Good visibility
+        }
 
         // 1. Wireframe Box
         p.noFill();
-        p.stroke(style.h, style.s, style.b, item.opacity);
-        p.strokeWeight(1);
+        p.stroke(style.h, style.s, finalB, item.opacity);
+        p.strokeWeight(strokeW);
         p.box(size);
 
         // 2. Corner Points
         p.noStroke();
-        p.fill(style.h, style.s, style.b, item.opacity);
+        p.fill(style.h, style.s, finalB, item.opacity);
 
         if (points) {
             for (let i of points) {
