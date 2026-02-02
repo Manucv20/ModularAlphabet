@@ -49,16 +49,21 @@ const homeSketch = (p) => {
                 let currentDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
                 let delta = initialTouchDist - currentDist;
 
-                // Sensitivity
-                targetZ += delta * 2;
+                // Activate zoom only after crossing threshold
+                if (!touchZoomActive && Math.abs(delta) > PINCH_THRESHOLD) {
+                    touchZoomActive = true;
+                }
 
-                // Clamp Limits
-                if (targetZ < 1) targetZ = 1;
-                if (targetZ > 1200) targetZ = 1200;
-
-                initialTouchDist = currentDist;
+                // Apply zoom if gesture is active
+                if (touchZoomActive) {
+                    targetZ += delta * 2;
+                    if (targetZ < 1) targetZ = 1;
+                    if (targetZ > 1200) targetZ = 1200;
+                    initialTouchDist = currentDist;
+                }
                 return false;
             }
+            // 1 finger: allow orbitControl to handle rotation (return undefined)
         });
 
 

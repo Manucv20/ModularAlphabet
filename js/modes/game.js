@@ -78,8 +78,9 @@ const gameSketch = (p) => {
             if (p.touches.length === 2) {
                 initialTouchDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
                 touchZoomActive = false; // Reset on new touch
-                return false;
+                return false; // Block orbitControl during 2-finger pinch
             }
+            // 1 finger: allow orbitControl to handle rotation (return undefined)
         });
 
         canvas.touchMoved(() => {
@@ -103,6 +104,7 @@ const gameSketch = (p) => {
                 }
                 return false;
             }
+            // 1 finger: allow orbitControl to handle rotation (return undefined)
         });
 
         // Iniciar partida
