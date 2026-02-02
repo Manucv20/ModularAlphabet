@@ -40,6 +40,7 @@ const homeSketch = (p) => {
                 if (!pinchStarted) {
                     if (Math.abs(currentDist - lastDist) > PINCH_THRESHOLD) {
                         pinchStarted = true;
+                        lastDist = currentDist; // Reset to prevent zoom jump
                     }
                 }
 
