@@ -12,13 +12,7 @@ const generatorSketch = (p) => {
     let feedbackText = '';
     let feedbackTimer = 0;
 
-    // Variables de diseño (Missing restored)
-    let size;
-    let spacing;
-    let lineHeight;
-    let margin = 40;
-
-    // Variables de UI y DOM (Missing restored)
+    // Variables de UI y DOM
     let canvas;
     let textInput;
     let generateButton;
@@ -31,15 +25,11 @@ const generatorSketch = (p) => {
     // HELPERS (Ahora delegados a shared.js)
     // ==========================================
 
-    // getPointsForChar y getBranchStyle se han movido a modes/shared.js
-    // para mantener consistencia y limpieza.
-
     p.setup = function () {
         canvas = p.createCanvas(100, 100);
         canvas.parent('canvas-container'); // Asegurar parent correcto
         updateCanvasSize();
-        let isDark = (window.globalAppState && window.globalAppState.isDarkMode !== undefined) ? window.globalAppState.isDarkMode : true;
-        p.background(isDark ? p.color(15, 15, 17) : p.color(253, 253, 253));
+        p.background(getIsDarkMode() ? p.color(15, 15, 17) : p.color(235, 232, 227)); // Warm beige light mode
         setupNodePositions();
         prepareWord(word);
 
@@ -52,18 +42,19 @@ const generatorSketch = (p) => {
         // No need to select DOM element
 
         if (generateButton) {
-            generateButton.mousePressed(() => {
+            // Use native onclick to overwrite potential previous listeners from older instances
+            generateButton.elt.onclick = () => {
                 const raw = textInput.value();
                 word = normalizeForMapping(raw);
                 prepareWord(word);
-            });
+            };
         }
         if (saveButton) {
-            saveButton.mousePressed(() => {
+            saveButton.elt.onclick = () => {
                 p.saveCanvas('alfabeto_modular', 'png');
                 feedbackText = '¡Guardado!';
                 feedbackTimer = 60;
-            });
+            };
         }
     };
 
@@ -75,7 +66,7 @@ const generatorSketch = (p) => {
         let dynamicStroke = p.max(size * 0.012, 0.5);
 
         // Check toggle state (Global)
-        let useHints = window.globalAppState ? window.globalAppState.colorHintsEnabled : false;
+        let useHints = getColorHintsEnabled();
 
         let strokeColor, fillColor;
 
@@ -89,10 +80,9 @@ const generatorSketch = (p) => {
             fillColor = p.color(style.h, style.s, style.b, alpha);
         } else {
             p.colorMode(p.RGB);
-            // Read fresh state
-            let isDark = (window.globalAppState && window.globalAppState.isDarkMode !== undefined) ? window.globalAppState.isDarkMode : true;
-            strokeColor = isDark ? p.color(50) : p.color(200);
-            fillColor = p.color(isDark ? 224 : 51, opacity);
+            let isDark = getIsDarkMode();
+            strokeColor = isDark ? p.color(50) : p.color(80); // Darker stroke for warm beige bg
+            fillColor = p.color(isDark ? 224 : 40, opacity); // Darker fill for warm beige bg
         }
 
         p.stroke(strokeColor);
@@ -127,14 +117,11 @@ const generatorSketch = (p) => {
      * Bucle principal de renderizado.
      */
     p.draw = function () {
-        // Reset a RGB siempre al inicio del frame
+        // Read theme state once per frame for consistency
+        let isDark = getIsDarkMode();
+
         p.colorMode(p.RGB);
-
-        // Leer estado global
-        let globalDark = (window.globalAppState && window.globalAppState.isDarkMode !== undefined) ? window.globalAppState.isDarkMode : true;
-
-        // Color de fondo dinámico
-        p.background(globalDark ? p.color(15, 15, 17) : p.color(230, 233, 239));
+        p.background(isDark ? p.color(15, 15, 17) : p.color(235, 232, 227)); // Warm beige light mode
 
         // Dibujar todas las letras
         for (let data of lettersData) {
@@ -152,7 +139,7 @@ const generatorSketch = (p) => {
                     let marginHover = data.size * 0.15;
 
                     // Fondo del hover y texto según tema (High Contrast)
-                    if (globalDark) {
+                    if (isDark) {
                         p.fill(0);    // Fondo Negro en modo oscuro
                     } else {
                         p.fill(255);  // Fondo Blanco en modo claro
@@ -162,7 +149,7 @@ const generatorSketch = (p) => {
                     p.rect(data.x + marginHover, data.y + marginHover, data.size - marginHover * 2, data.size - marginHover * 2, 6);
 
                     // Letra en texto plano sobre el recuadro
-                    if (globalDark) {
+                    if (isDark) {
                         p.fill(255);  // Texto Blanco en modo oscuro
                     } else {
                         p.fill(0);    // Texto Negro en modo claro
@@ -259,22 +246,23 @@ const generatorSketch = (p) => {
         // Reducimos el ancho máximo para forzar saltos de línea y facilitar multi-columnas
         let maxWidth = p.width * 0.45;
 
-        // Algoritmo de ajuste de línea (Word wrapping)
-        // Usamos un tamaño base estimado para el cálculo de wrapping antes de saber el tamaño final
+        // Word Wrapping Algorithm
+        // Greedily packs words into lines based on an estimated width.
+        // We use a safe estimate (50px base) to determine line breaks before layout.
         let estimatedSize = 50;
 
         for (let w of words) {
             let wordLength = w.length;
-            // Estima si la palabra cabe en la línea actual
+            // Check if adding this word exceeds maxWidth
             if ((currentLineLength + wordLength) * (estimatedSize * 1.4) > maxWidth) {
-                lines.push([]); // Nueva línea
+                lines.push([]); // Start new line
                 currentLineLength = 0;
             }
-            // Añadir letras de la palabra a la línea actual
+            // Add characters
             for (let c of w) {
                 lines[lines.length - 1].push(c.toUpperCase());
             }
-            // Añadir espacio entre palabras (representado como 'empty')
+            // Add logical space (represented as 'empty' module)
             lines[lines.length - 1].push('empty');
             currentLineLength += wordLength + 1;
         }
@@ -311,7 +299,8 @@ const generatorSketch = (p) => {
             if (line.length > maxLineLength) maxLineLength = line.length;
         }
 
-        // Dimensiones disponibles (usamos p.width)
+        // Dimensiones disponibles
+        let margin = 80;
         let availableWidth = p.width - margin * 2;
         let availableHeight = p.height - margin * 2;
 
@@ -327,7 +316,7 @@ const generatorSketch = (p) => {
         let totalHeightFactor = maxRowsInCol * 1.5;
 
         // Calcular SIZE óptimo
-        size = p.min(
+        let size = p.min(
             availableWidth / totalWidthFactor,
             availableHeight / totalHeightFactor
         );
@@ -336,8 +325,8 @@ const generatorSketch = (p) => {
         size = p.min(size, 120);
         size = p.max(size, 8);
 
-        spacing = size * 0.4;
-        lineHeight = size * 1.5;
+        let spacing = size * 0.4;
+        let lineHeight = size * 1.5;
         let columnGap = size * columnGapFactor;
         let columnWidth = maxLineLength * size + (maxLineLength - 1) * spacing;
         if (maxLineLength === 0) columnWidth = 0;
@@ -374,8 +363,8 @@ const generatorSketch = (p) => {
 
 
     p.updateColorHints = function (enabled) {
-        // Forzar redibujado
-        p.loop();
+        // Force complete re-render to update all colors
+        prepareWord(word);
     };
 
 };
