@@ -1,57 +1,97 @@
 :root {
-  /* Configuración MODO OSCURO (Default) - Professional Palette */
-  --bg-color: #0f0f11; /* Rich Black */
-  /* Improved Contrast */
-  --text-color: #f0f0f0; /* Brighter White */
-  --text-color-light: #b0b0b0; /* Lighter Gray for better read on dark */
-  --accent-color: #a3b8ef; /* Soft Periwinkle */
+  /* =========================================
+     PALETA DE COLORES (VISUAL IDENTITY)
+     ========================================= */
+  
+  /* CORE COLORS */
+  --brand-h: 243;
+  --brand-s: 75%;
+  --brand-l: 59%;
+  --brand-primary: hsl(var(--brand-h), var(--brand-s), var(--brand-l)); /* #6366F1 Vivid Indigo */
+  
+  /* DARK MODE (Default) */
+  --bg-color: #0B0C15; /* Deep Void Blue */
+  --canvas-bg: #0B0C15;
+  
+  --text-color: #F1F5F9; /* Slate 100 */
+  --text-color-light: #94A3B8; /* Slate 400 */
+  
+  /* SEMANTIC SURFACES */
+  --surface-glass: rgba(15, 23, 42, 0.2); /* Ultra-Transparent Dark */
+  --surface-border: rgba(99, 102, 241, 0.2); /* Brand Hint */
+  
+  /* UI ELEMENTS */
+  --btn-primary-bg: var(--brand-primary);
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05); /* Ghost White */
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-text: #E2E8F0;
 
-  --container-bg: rgba(20, 20, 25, 0.6); /* Glass effect dark */
-  --container-border: rgba(255, 255, 255, 0.1);
-  --canvas-bg: #0f0f11; /* Match body bg */
-
-  --primary-btn-bg: #a3b8ef;
-  --primary-btn-text: #0f0f11;
-  --secondary-btn-bg: rgba(255, 255, 255, 0.05);
-  --secondary-btn-text: #e0e0e0;
-  --secondary-btn-border: rgba(255, 255, 255, 0.2);
-
-  --input-bg: rgba(0, 0, 0, 0.3);
-  --input-border: rgba(255, 255, 255, 0.1);
-  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --shadow-spread: 0 8px 32px;
 }
 
 body.light-mode {
-  /* MODO CLARO - Hybrid: Original UI Colors + Soft Warm Backgrounds */
-  --bg-color: #ebe8e3; /* Soft Warm Beige (reduced glare) */
+  /* OPTION 3: "Clinical & Modern" - Polished for High Visibility */
+  --bg-color: #F1F5F9; /* Slate 100 - Perfect for seeing light 3D cubes */
+  --canvas-bg: #F1F5F9;
   
-  /* Text - ORIGINAL Blue-Slate Palette */
-  --text-color: #2c3e50; /* Deep Slate */
-  --text-color-light: #5d6d7e; /* Muted Blue-Grey */
-  --accent-color: #34495e; /* Elegant Navy */
+  --text-color: #0F172A; /* Slate 900 */
+  --text-color-light: #334155; /* Slate 700 - Better reading */
+  
+  /* Brand adaption: Professional Tech Blue */
+  --brand-primary: #1E40AF; /* Blue 800 */
 
-  /* Containers - Warm Cream instead of pure white */
-  --container-bg: rgba(252, 250, 247, 0.90); /* Soft Ivory (not pure white) */
-  --container-border: rgba(44, 62, 80, 0.10);
-  --canvas-bg: #ebe8e3; /* Match soft background */
+  /* SEMANTIC SURFACES - True Glassmorphism (Crystal Clear) */
+  --surface-glass: rgba(255, 255, 255, 0.15); /* Maximum transparency */
+  --surface-border: rgba(30, 64, 175, 0.1); 
+  
+  /* UI ELEMENTS */
+  --btn-primary-bg: #1E40AF;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: rgba(255, 255, 255, 0.5);
+  --btn-secondary-border: #94A3B8;
+  --btn-secondary-text: #1E40AF;
 
-  /* Buttons - ORIGINAL Navy/Slate */
-  --primary-btn-bg: #2c3e50;
-  --primary-btn-text: #fff;
-  --secondary-btn-bg: rgba(44, 62, 80, 0.05);
-  --secondary-btn-text: #2c3e50;
-  --secondary-btn-border: rgba(44, 62, 80, 0.15);
+  --shadow-color: rgba(15, 23, 42, 0.12); 
+  --shadow-spread: 0 4px 25px;
+}
 
-  /* Inputs - Very soft cream */
-  --input-bg: rgba(255, 253, 250, 0.90); /* Subtle warm tint */
-  --input-border: rgba(44, 62, 80, 0.12);
-  --shadow-color: rgba(44, 62, 80, 0.08);
+/* Specific component pop in Light Mode - Glass enabled for background visibility */
+body.light-mode #nav-container,
+body.light-mode .legend-overlay,
+body.light-mode #ui-container {
+  background: var(--surface-glass) !important;
+  border: 1px solid var(--surface-border) !important;
+  box-shadow: 0 10px 40px var(--shadow-color) !important;
+  backdrop-filter: blur(10px) saturate(1.6) !important; /* Saturate helps background pop through */
+  -webkit-backdrop-filter: blur(10px) saturate(1.6) !important;
+}
+
+body.light-mode .nav-tab.active {
+  background-color: #1E40AF;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+body.light-mode .nav-tab:not(.active) {
+  color: #475569;
+}
+
+body.light-mode .nav-tab:hover:not(.active) {
+  background: #F1F5F9;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent; /* Remove mobile grey box */
+}
+
+/* Global Selection Style */
+::selection {
+  background: var(--brand-primary);
+  color: #ffffff;
 }
 html,
 body {
@@ -88,15 +128,20 @@ h1 {
   
   /* Reset H1 to transparent/default layout */
   background-color: transparent;
-  color: var(--accent-color);
+  color: var(--brand-primary);
   
-  letter-spacing: 12px;
+  /* Tight Tracking for Bold Pop Look */
+  letter-spacing: 1px;
   text-transform: uppercase;
-  padding: 15px 0 10px 0;
-  flex-shrink: 0;
+  padding: 4px 0; /* Ultra-Compact Header */
   z-index: 10;
   text-shadow: 0 2px 10px var(--shadow-color);
   position: relative;
+  pointer-events: none; /* Let clicks pass to canvas if not on text-layer */
+}
+
+h1 .text-layer {
+  pointer-events: auto; /* Buttons/Title active */
 }
 
 /* 
@@ -106,23 +151,42 @@ h1 {
 h1 .text-layer {
   position: relative;
   z-index: 2;
-  display: inline-block;
-  padding: 4px 24px; /* Matches button feel */
-  border-radius: 8px; /* Matches UI rounded corners */
+  /* Unified Flex Layout (Responsive by Default) */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 20px; /* Reduced gaps: 4px Vertical, 20px Horizontal */
   
-  /* PALETTE SYNC: Match Active Tab */
-  background-color: var(--primary-btn-bg);
-  color: var(--primary-btn-text);
+  width: fit-content;
+  max-width: calc(100vw - 40px); /* Prevent overflow with viewport padding */
+  margin: 0 auto;
+
+  padding: 8px 24px; /* Tighter padding for 'Hug' effect */
+  border-radius: 12px; /* Slightly tighter radius */
   
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  /* PALETTE SYNC: Premium Glassmorphism (Global) */
+  background-color: rgba(99, 102, 241, 0.15); /* Subtle Indigo Tint */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  
+  color: var(--btn-primary-text);
+  
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2); /* Enhanced shadow for floating effect */
   
   transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
 }
 
 /* Specific override removed - utilizing variables handles it automatically */
+/* Specific override removed - utilizing variables handles it automatically */
 body.light-mode h1 .text-layer {
-  background-color: var(--primary-btn-bg);
-  color: var(--primary-btn-text);
+  /* High contrast glass for header */
+  background-color: var(--surface-glass); 
+  color: var(--brand-primary); 
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 4px 15px var(--shadow-color);
+  backdrop-filter: blur(8px);
 }
 
 /* Remove wide h1 overrides */
@@ -143,6 +207,13 @@ body.light-mode h1 {
   overflow: visible;
 }
 
+/* Word Row Structure */
+.word-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px; /* Desktop gap between letters */
+}
+
 /* Individual letter spacing wrapper */
 h1 .letter-wrapper {
   display: inline-block;
@@ -150,23 +221,44 @@ h1 .letter-wrapper {
   min-width: 20px; /* Prevent collapse */
 }
 
-h1 .letter-char {
-  display: inline-block;
-  transition: opacity 0.4s ease;
-}
+  h1 .letter-char {
+    display: inline-block;
+    transition: opacity 0.4s ease;
+    font-weight: 900; /* Bold Global */
+    /* Unified Pop Style */
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+  }
 
 /* AREA CENTRAL (CANVAS) */
 #canvas-wrapper {
-  flex: 1;
-  width: 100%;
+  /* Default: Full Screen (Home Mode) */
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1; /* Behind UI */
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
   overflow: hidden;
   margin: 0;
-  padding: 0; /* Ensure no internal padding */
-  touch-action: none; /* CRITICAL: Let p5.js handle touch events immediately */
+  padding: 0;
+  touch-action: none;
+}
+
+/* Generator & Game Modes: Contained Canvas (Clarity Fix) */
+/* Generator & Game Modes: Natural Flow */
+body.mode-generator #canvas-wrapper,
+body.mode-game #canvas-wrapper {
+  position: relative;
+  flex: 1; /* Grow to fill space */
+  width: 100%;
+  min-height: 35vh; /* Reduced from 40vh for density */
+  z-index: 1; 
+  border-top: 1px solid var(--surface-border);
+  border-bottom: 1px solid var(--surface-border);
+  margin: 0;
 }
 
 #canvas-container {
@@ -192,100 +284,246 @@ canvas {
 }
 
 /* CONTROLES UI */
+/* Professional Stats Dashboard */
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+  margin: 0; /* Reset margins */
+}
+
+.stat-pill {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  padding: 6px 12px; /* Compact padding */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px; /* Reduced from 36px */
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.stat-label {
+  color: var(--text-color-light);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  color: var(--text-color);
+  font-family: 'Inter', monospace; /* Tabular nums if possible */
+  font-size: 14px;
+}
+
+/* Feedback Pill specific */
+.stat-pill.feedback {
+  min-width: 100px; /* Prevent jumping */
+  justify-content: center;
+  color: var(--text-color); /* Default */
+  /* JS will override 'color' for Success/Error. Background remains glass. */
+}
+
+/* Replaces old feedback-msg style logic but keeps ID functional */
+#feedbackDisplay {
+  opacity: 1; /* Always visible as a placeholder */
+  /* JS manages text content and transient opacity/colors */
+  transition: color 0.2s ease, transform 0.2s ease;
+}
 .game-hud {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 600px;
+  height: auto; 
+  gap: 6px; /* Tight internal spacing */
+  padding-bottom: 5px; /* Minimal bottom space */
   color: var(--text-color);
+  pointer-events: none;
+  margin: 0 auto;
+}
+.game-hud > * {
+  pointer-events: auto;
+  width: 100%;
 }
 .score-board {
   font-size: 14px;
   font-weight: 600;
-  color: var(--accent-color);
+  color: var(--brand-primary);
   margin-bottom: 5px;
 }
+/* Wrapper to align Word Box + Button side-by-side */
+.target-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 95%;
+  max-width: 360px;
+  margin: 0 auto; /* Removed bottom margin */
+}
+
+/* Spacer no longer needed with Balanced layout (Theme vs Color) */
+.ghost-spacer {
+  display: none !important;
+}
+
+/* The Box containing the Word */
 .target-display {
-  background: rgba(0,0,0,0.2);
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-align: center;
-  margin-bottom: 10px;
-  border: 1px solid var(--container-border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 4px 10px; /* Tighter padding */
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  max-width: 200px; /* Prevent squeezing buttons on mobile */
 }
+
 .target-display .label {
-  font-size: 10px;
+  text-align: center;
+  margin-bottom: 0;
+  font-size: 9px; /* Shrunk label */
   letter-spacing: 1px;
-  display: block;
-  opacity: 0.7;
+  opacity: 0.6;
 }
+
 .target-display h2 {
-  font-size: 24px;
-  font-weight: 300;
-  letter-spacing: 5px;
-  margin: 5px 0 0 0;
+  font-size: 22px; /* Reduced from 32px */
+  margin: 0;
+  letter-spacing: 1.5px;
+}
+
+
+
+/* The Mini Toggle Button - Sits to the right */
+.color-toggle-btn.mini-toggle {
+  width: 44px; /* Matches height of a button nicely */
+  height: 44px;
+  font-size: 20px;
+  border-radius: 12px; /* Soft square matches UI */
+  margin: 0;
+  flex-shrink: 0;
 }
 /* UNIVERSAL UI VISIBILITY LOGIC */
 .mode-ui {
-  display: none !important; /* Hide by default, override any inline styles */
+  display: none !important; 
+  /* Layout properties moved to specific IDs to avoid conflicts */
+  /* pointer-events: none; handled individually */
 }
 
-/* Generator UI: Needs Flex for alignment */
+/* Generator UI: Visibility Toggle */
 #ui-container.active {
   display: flex !important;
 }
 
-/* Home UI: Needs Flex for Centering, but Column for flow */
+/* Home UI: Remains Full Overlay */
+/* Home UI: Remains Full Overlay (See definition below) */
 #home-ui-container.active {
   display: flex !important;
-  flex-direction: column;
-  /* True Center Alignment */
-  align-items: center; 
-  justify-content: center; 
+}
+#home-ui-container.active {
+  display: flex !important;
 }
 
-/* Game UI: Needs Block/Flex depending on inner HUD */
+/* Game UI: Natural Flow Dashboard */
 #game-ui-container.active {
-  display: block !important; 
+  display: flex !important;
+  position: relative; /* In Flow */
+  width: 100%;
+  height: auto; /* Fit content */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0; /* Reduced from 10px */
+  z-index: 10;
+  pointer-events: auto;
 }
 
+/* Consolidated Game HUD (Clean) */
+
+/* Specific styling for the Instructions footer in Game Mode */
+/* Specific styling for the Instructions footer in Game Mode */
 .instructions {
-  font-size: 11px;
-  opacity: 0.6;
+  background: var(--surface-glass);
+  padding: 6px 12px; /* Very compact */
+  border-radius: 16px;
+  margin-bottom: 10px; /* Reduced margin */
+  font-size: 13px; /* Standardized to 13px */
+  font-weight: 500;
+  color: var(--text-color-light); /* Standardized color */
+  text-align: center;
+  pointer-events: auto;
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-self: center;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  
+  /* Natural flow in flex-end container */
+  width: 90%;
+  max-width: 400px;
+  opacity: 0.8; /* Subtle look */
+  line-height: 1.4;
+  white-space: normal; /* Allow wrapping */
 }
+
 
 #ui-container {
+  pointer-events: auto;
   width: 100%;
-  max-width: 550px;
-  display: flex;
+  max-width: 600px;
+  
+  /* Natural Stack Position - Clean (No !important) */
+  position: relative;
+  height: auto;
+  margin: 6px auto 10px auto; /* Added 6px 'air' from canvas top */
+
+  display: none; /* Hidden by default, toggled by .active */
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  padding: 15px 20px;
-  background: var(--container-bg);
-  border: 1px solid var(--container-border);
+  gap: 10px; /* Tighter gap */
+  
+  /* VISUALS: The Glass Pill */
+  padding: 10px 14px; /* Tighter padding */
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
   border-radius: 20px;
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px); /* Safari support */
+  -webkit-backdrop-filter: blur(16px);
+  
   flex-shrink: 0;
   z-index: 10;
   box-shadow: 0 8px 32px 0 var(--shadow-color);
-  margin-bottom: 10px;
-  transition:
-    background 0.4s ease,
-    border-color 0.4s ease,
-    box-shadow 0.4s ease;
+  transition: all 0.4s ease;
+}
+
+/* Utilities group to keep theme/color together if they wrap */
+.util-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 input {
   flex: 1;
-  min-width: 180px;
-  padding: 12px 16px;
+  min-width: 140px; /* Reduced from 180px to prevent overflow */
+  padding: 0 16px; /* Horizontal only, height handles vertical */
+  height: 44px; /* Explicit height to match buttons exactly */
   font-size: 15px;
-  background: var(--input-bg);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-color);
-  border: 1px solid var(--input-border);
+  border: 1px solid var(--surface-border);
   border-radius: 10px;
   outline: none;
   transition: all 0.3s ease;
@@ -296,19 +534,24 @@ input::placeholder {
   opacity: 1; /* Ensure full contrast */
 }
 input:focus {
-  border-color: var(--accent-color);
+  border-color: var(--brand-primary);
   box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
 button {
-  padding: 12px 24px;
+  padding: 0 20px; /* Horizontal only */
+  height: 44px; /* Match input height exactly for vertical symmetry */
   font-size: 13px;
   font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  background-color: var(--primary-btn-bg);
-  color: var(--primary-btn-text);
+  
+  /* BASE IS NEUTRAL (Secondary) */
+  background-color: var(--btn-secondary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--btn-secondary-border);
+  
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -322,79 +565,216 @@ button:active {
 }
 
 button#generateButton {
-  background-color: var(--primary-btn-bg);
-  color: var(--primary-btn-text);
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
   box-shadow: 0 4px 15px var(--shadow-color);
 }
 
 button#saveButton {
-  background-color: var(--secondary-btn-bg);
-  color: var(--secondary-btn-text);
-  border: 1px solid var(--secondary-btn-border);
+  background: var(--btn-secondary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--btn-secondary-border);
   font-weight: 500;
 }
 button#saveButton:hover {
-  background-color: var(--secondary-btn-border);
+  background: var(--btn-secondary-border);
 }
 
-button#themeButton,
-button#colorHintsButton {
-  background-color: transparent;
+button#themeButton {
+  z-index: 100;
+  background-color: var(--surface-glass);
   color: var(--text-color);
-  font-size: 26px; /* Larger icons for better visibility */
-  padding: 10px 14px;
-  border: 1px solid transparent;
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  font-size: 20px; 
+  width: 44px; 
+  height: 44px;
+  border-radius: 50%;
+  
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 48px; /* Touch-friendly minimum */
-  min-height: 48px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  flex-shrink: 0;
+  cursor: pointer;
 }
-button#themeButton:hover,
-button#colorHintsButton:hover {
-  background-color: var(--secondary-btn-bg);
-  border-color: var(--secondary-btn-border);
-  transform: rotate(15deg);
+
+/* Footer Integration (Home Mode) - Ultra Clean */
+footer #themeButton {
+  position: absolute; /* Default: Corner for Mobile */
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0;
+  
+  width: 26px; /* Slightly larger for touch on mobile */
+  height: 26px;
+  font-size: 13px;
+  
+  background: transparent;
+  border: 1px solid var(--surface-border);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+/* Integrated Style for Desktop */
+@media (min-width: 601px) {
+  footer #themeButton {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    margin-left: 8px;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    opacity: 0.5;
+    border-color: transparent;
+  }
+  
+  footer #themeButton::before {
+    content: "•";
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+footer #themeButton:hover {
+  opacity: 1;
+  background: var(--surface-glass);
+  border-color: var(--brand-primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+@media (min-width: 601px) {
+  footer #themeButton:hover {
+    transform: scale(1.1); /* No translateY on desktop flow */
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+  }
+}
+
+body.light-mode footer #themeButton:hover {
+  box-shadow: 0 0 10px rgba(30, 64, 175, 0.1);
+}
+
+/* Specific Contextual Adjustments */
+body.mode-generator button#themeButton,
+body.mode-game button#themeButton {
+  position: static; /* Naturally in flow */
+  transform: none; 
+  border-radius: 12px;
+  margin: 0;
+  box-shadow: none;
+  background: var(--surface-glass);
+}
+
+/* Align utility group in Generator */
+.util-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 15px; /* Separate from main actions */
+  padding-left: 15px;
+  border-left: 1px solid var(--surface-border);
+}
+
+/* Contextual Utility Buttons (Theme / Color) */
+.color-toggle-btn {
+  background-color: var(--surface-glass);
+  color: var(--text-color);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(8px);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Generator: Small Icon Button */
+.color-toggle-btn.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  padding: 0;
+  font-size: 20px;
+}
+
+/* Game: Pill Button */
+.color-toggle-btn.pill-btn {
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  width: auto;
+  margin-top: 10px; /* Space from instructions */
+}
+
+/* Active State (Global) */
+.color-toggle-btn.active {
+  background-color: var(--brand-primary);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Hover Effects */
+@media (hover: hover) {
+  button#themeButton:hover,
+  .color-toggle-btn:hover {
+    transform: scale(1.05); /* Gentle scale */
+    border-color: var(--brand-primary);
+  }
+}
+
+/* TOUCH FEEDBACK */
+button#themeButton:active,
+.color-toggle-btn:active {
+  transform: scale(0.95);
 }
 
 /* NAVEGACIÓN TAB */
 #nav-container {
   display: flex;
-  gap: 10px;
-  margin-bottom: 0; /* Removed margin */
-  background: var(--container-bg);
-  padding: 8px;
-  border-radius: 0 0 12px 12px; /* Top corners flat to stick to header if needed, but here it floats? No, it's under H1. Let's keep it clean. */
+  gap: 8px; /* Tighter gap default */
+  margin: 4px auto 6px auto; /* Added side/bottom air */
+  background: var(--surface-glass);
+  padding: 6px;
   border-radius: 12px;
-  border: 1px solid var(--container-border);
-  backdrop-filter: blur(10px);
   z-index: 20;
-  flex-wrap: wrap; /* Allow wrapping on small screens */
+  flex-wrap: wrap; 
   justify-content: center;
-}
-/* ... */
-/* FOOTER */
-footer {
-  width: 100%;
-  padding: 15px 10px;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-color-light);
-  flex-shrink: 0;
-  opacity: 0.8;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border-top: 1px solid var(--container-border);
-  background: var(--container-bg);
-  backdrop-filter: blur(5px);
-  margin-top: 0; /* Removed margin */
-  transition: color 0.4s ease, border-color 0.4s ease;
+  align-items: center;
+  width: fit-content;
+  max-width: 95%;
+  pointer-events: auto;
 }
 
+/* Push icons to the right ONLY when we have room (Desktop/Tablet) */
+@media (min-width: 601px) {
+  #themeButton {
+    margin-left: 20px;
+  }
+}
+
+
 .nav-tab {
-  padding: 10px 18px;
-  font-size: 14px;
+  padding: 6px 14px; /* Pro Compact */
+  font-size: 13px; /* Slightly smaller */
   font-weight: 500;
   color: var(--text-color-light);
   background: transparent;
@@ -403,146 +783,202 @@ footer {
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  min-height: 44px; /* Touch-friendly */
+  min-height: 36px; /* Reduced from 44px */
   display: flex;
   align-items: center;
 }
 
 .nav-tab.active {
-  background: var(--primary-btn-bg);
-  color: var(--primary-btn-text);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   font-weight: 700;
   box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .nav-tab:hover:not(.active) {
-  background: var(--secondary-btn-bg);
+  background: var(--btn-secondary-bg);
   color: var(--text-color);
 }
 
 /* FOOTER */
 footer {
   width: 100%;
-  padding: 15px 10px;
-  text-align: center;
+  padding: 6px 15px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; /* Safety for small screens */
+  gap: 4px; 
+  
   font-size: 10px;
   font-weight: 500;
   color: var(--text-color-light);
+  z-index: 10;
   flex-shrink: 0;
   opacity: 0.8;
   letter-spacing: 2px;
   text-transform: uppercase;
-  border-top: 1px solid var(--container-border);
-  background: var(--container-bg);
-  backdrop-filter: blur(5px);
-  margin-top: 10px;
-  transition: color 0.4s ease, border-color 0.4s ease;
+  border-top: 1px solid var(--surface-border);
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  margin-top: auto; 
+  transition: all 0.4s ease;
+  pointer-events: auto;
+}
+
+body.light-mode footer {
+  background: var(--surface-glass);
+  border-top: 1px solid var(--surface-border);
+  box-shadow: 0 -4px 15px var(--shadow-color);
+  backdrop-filter: blur(10px) saturate(1.6);
 }
 /* INTRO & LEGEND STYLES */
 #home-ui-container {
   pointer-events: none; /* Allow canvas interaction behind */
   display: flex;
-  justify-content: center; /* Center legend */
-  align-items: center;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically (restore "Middle of Canvas") */
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 15; /* Ensure it is above Footer (10) but below Nav (20) */
+  box-sizing: border-box; 
+  overflow: hidden; 
 }
 
 .legend-overlay {
-  pointer-events: auto;
-  background: var(--container-bg); /* Use defined variable */
-  border: 1px solid var(--container-border);
-  backdrop-filter: blur(16px); /* Stronger blur */
-  padding: 16px;
+  pointer-events: auto; /* Re-enable for the guide */
+  background: var(--surface-glass); 
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(16px); 
+  padding: 6px; /* Compact default */
   border-radius: 12px;
-  width: min(580px, 85vw); /* Fluid width - responsive but capped */
-  max-height: calc(100vh - 100px); /* Character Preview Panel (New Visual Legend) */
+  width: min(600px, 98vw); /* Wider by default */
+  max-height: calc(100vh - 120px); 
   overflow-y: auto;
   overflow-x: hidden;
   box-shadow: 0 10px 30px var(--shadow-color);
   display: flex;
   flex-direction: column;
+  align-items: center; /* Ensure children (H2) are centered */
   gap: 0;
-  transition: width 0.3s ease, all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
+/* When collapsed: make container transparent, only show title */
+.legend-overlay:has(.guide-content.collapsed) {
+  background: transparent !important;
+  border-color: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* MINIMALIST PREVIEW PANEL */
 #char-preview-panel {
-  background: var(--container-bg); /* More solid background */
-  border: 1px solid var(--accent-color);
+  /* Minimalist Bar */
+  background: rgba(0, 0, 0, 0.2); /* Subtle darkness */
+  border: 1px solid transparent; /* Dynamic color will apply here */
   border-radius: 12px;
-  padding: 10px 20px;
-  margin-bottom: 20px;
+  padding: 6px 16px; /* Very compact */
+  margin-bottom: 10px; /* Reduced margin */
+  
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space out content */
-  gap: 15px;
-  min-height: 70px;
-  box-shadow: 0 4px 15px var(--shadow-color);
-  /* Sticky removed as it conflicts with overflow:hidden of collapse */
-  position: relative; 
-  backdrop-filter: blur(12px);
+  justify-content: center; /* Centered content */
+  gap: 20px;
+  
+  min-height: 50px; /* Reduced from 70px */
+  transition: all 0.3s ease;
+}
+
+body.light-mode #char-preview-panel {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
 }
 
 .preview-left {
   display: flex;
   align-items: center;
   gap: 15px;
+  width: 100%;
+  justify-content: center;
 }
 
 .preview-visual-host {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Escalar el módulo visual dentro del preview para que se vea GRANDE */
+/* Escalar el módulo visual dentro del preview */
 .preview-visual-host .alpha-cell {
-  transform: scale(1.5); /* 1.5x Size */
-  border-color: transparent; /* Remove border for cleaner look */
+  transform: scale(1.2); /* Slightly smaller scale */
+  border-color: transparent; 
   background: transparent;
   pointer-events: none;
 }
 
 .preview-char {
-  font-size: 32px;
+  font-size: 28px; /* Compact */
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--accent-color); /* Will be overridden by JS inline color */
   min-width: 30px;
   text-align: center;
 }
 
+/* Hide the label if user wants "creative unification" (color only) */
 .preview-info {
-  font-size: 12px;
-  color: var(--text-color-light);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: right;
-  max-width: 120px;
-  line-height: 1.2;
+  display: none; 
 }
 
 .legend-overlay h2 {
-  font-size: 18px;
-  margin: 0 0 16px 0; /* More space below */
+  font-size: 14px;
+  margin: 0 0 16px 0;
   
-  /* PALETTE SYNC: Match Title & Active Button */
-  background-color: var(--primary-btn-bg);
-  color: var(--primary-btn-text);
-  padding: 8px 16px;
-  border-radius: 6px;
+  /* Match Nav Tab Active Style */
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text); /* Always white - matches nav tabs */
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--brand-primary);
   
   text-align: center;
-  border: none; /* Remove underline */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle lift */
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
   text-transform: uppercase;
   letter-spacing: 1px;
+  
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  width: fit-content;
+  min-width: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body.light-mode .legend-overlay h2 {
+  background-color: var(--brand-primary);
+  border-color: #1E40AF;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.legend-overlay h2:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25), 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.legend-overlay h2:active {
+  transform: scale(0.98);
 }
 
 .legend-desc {
@@ -555,94 +991,111 @@ footer {
   letter-spacing: 0.3px;
 }
 
-.color-guide {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
+/* =========================================
+   ALPHABET GUIDE (VISUAL SPACE / GRID)
+   ========================================= */
 
-.guide-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-color);
-  background: var(--secondary-btn-bg); /* Theme aware background */
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--secondary-btn-border); /* Added subtle border definition */
-}
-
-.swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-/* Legend Container - Flexible multi-column grid */
+/* The Container - "Organized in Space" */
 #alphabet-grid {
-  display: grid;
-  /* Max 12 columns mechanism */
-  grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
-  width: 100%;
-  max-width: 500px;
-  min-width: 280px;
-  margin: 0 auto;
-  gap: 8px;
-  justify-content: center;
-}
-
-
-/* Legend Section Collapse Styles */
-.legend-section {
-  margin-bottom: 12px;
-}
-
-.legend-section h3 {
-  cursor: pointer;
-  user-select: none;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-color-light);
-  margin: 0 0 8px 0;
+  flex-direction: row;
+  flex-wrap: wrap; /* WRAP CONTENT NATURALLY */
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  gap: 2px; /* Hyper Density Gap */
+  padding: 0; /* No outer padding */
+  justify-content: center; 
+  align-items: flex-start;
 }
 
-.legend-section h3::before {
-  content: '▶';
-  font-size: 10px;
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
-.legend-section:not(.collapsed) h3::before {
-  transform: rotate(90deg);
-}
-
-.legend-section-content {
-  overflow: hidden;
+/* The Group Card - "Ghost Cluster" */
+.legend-group {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 65px; /* Dense default */
+  max-width: 100%;
+  
+  background: transparent;
+  border-radius: 8px;
+  padding: 2px; /* Minimalist default */
+  border: 1px solid transparent; 
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  position: relative;
+  
   transition: all 0.3s ease;
 }
 
-.legend-section.collapsed .legend-section-content {
-  max-height: 0;
-  opacity: 0;
-  margin: 0;
+/* INTERACTIVE VISUAL UNIFIER */
+.legend-group:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Character Cell Styles */
+/* The "Totem" - Visual Anchor */
+.legend-group::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 3px;
+  background: var(--group-color);
+  border-radius: 3px;
+  margin-bottom: 4px; /* Tighther anchor */
+  box-shadow: 0 0 6px var(--group-color);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+.legend-group:hover::before {
+  opacity: 1;
+  width: 36px; 
+  transform: scaleY(1.5);
+}
+
+.group-header {
+  display: none;
+}
+
+/* Inner Grid */
+.group-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* Collapsible Content */
+.guide-content {
+  overflow: hidden;
+  max-height: 80vh; 
+  opacity: 1;
+  transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin-top: 10px;
+}
+
+.guide-content.collapsed {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  pointer-events: none;
+  visibility: hidden;
+  overflow: hidden; /* Ensure nothing leaks */
+}
+
+/* Cell Styles */
 .alpha-cell {
   position: relative;
-  width: 32px;
-  height: 32px;
-  background: var(--input-bg);
-  border: 1px solid var(--container-border);
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -652,281 +1105,116 @@ footer {
 }
 
 .mini-module {
-  width: 28px;
-  height: 28px;
-  /* Module takes full cell space */
+  width: 26px;
+  height: 26px;
   transition: transform 0.3s ease;
 }
 
-/* Enhanced Hover Effects - Only for devices with hover capability */
+/* Hover Effects */
 @media (hover: hover) {
-  .alpha-cell:hover .mini-module {
-    transform: scale(1.15);
-  }
-
+  .alpha-cell:hover .mini-module { transform: scale(1.15); }
   .alpha-cell:hover {
     transform: scale(1.05);
-    border-color: var(--accent-color);
-    background: var(--secondary-btn-bg);
-  }
-
-  .legend-section h3:hover {
-    color: var(--accent-color);
+    border-color: var(--brand-primary);
+    background: var(--btn-secondary-bg);
   }
 }
-
-/* Touch devices - simpler feedback with opacity */
 @media (hover: none) {
-  .alpha-cell:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-
-  /* Show tooltip on touch/tap */
-  .alpha-cell:active .char-label {
-    opacity: 1;
-  }
-  
-  .legend-section h3:active {
-    opacity: 0.8;
-  }
-
-  /* Disable complex transitions on touch devices */
-  .mini-module {
-    transition: opacity 0.2s ease;
-  }
+  .alpha-cell:active { opacity: 0.7; transform: scale(0.95); }
 }
 
-/* Smooth Scroll */
-.legend-overlay {
-  scroll-behavior: smooth;
-}
-
-.legend-overlay::-webkit-scrollbar {
-  width: 6px;
-}
-
-.legend-overlay::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.legend-overlay::-webkit-scrollbar-thumb {
-  background: var(--container-border);
-  border-radius: 3px;
-}
-
-.legend-overlay::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
-}
+/* Scrollbar Styling */
+.legend-overlay { scroll-behavior: smooth; }
+.legend-overlay::-webkit-scrollbar { width: 6px; }
+.legend-overlay::-webkit-scrollbar-track { background: transparent; }
+.legend-overlay::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 3px; }
 
 /* ============================================
-    RESPONSIVE DESIGN - Optimized Breakpoints
-    ============================================ */
+    RESPONSIVE DESIGN (Consolidated)
+   ============================================ */
 
-/* Medium Devices (Tablets, Large Phones) */
-@media (max-width: 900px) and (min-width: 601px) {
-  .legend-overlay {
-    width: 90%;
-    max-width: 400px;
-    padding: 12px;
-    max-height: calc(100vh - 100px);
+/* Mobile Standard (Ref: iPhone 12 Pro 390px, Pixel XL 412px) */
+@media (max-width: 600px) {
+  h1 { font-size: 20px; padding: 4px 0; } /* Ultra-compact even on mobile */
+  
+  /* Generator UI Container - Add margin on small screens */
+  #ui-container {
+    margin-left: 10px;
+    margin-right: 10px;
+    width: calc(100% - 20px);
+  }
+  
+  /* Container for the 3D Words */
+  h1 .text-layer {
+    display: flex;
+    flex-direction: column; /* Force stack on mobile */
+    align-items: center;
+    padding: 12px 16px; /* Adjusted padding for mobile */
+    gap: 8px; /* More vertical gap between word rows */
+    
+    background-color: rgba(99, 102, 241, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    width: fit-content;
+    max-width: 95vw; /* Constrain to viewport */
+  }
+  
+  /* The Individual Words */
+  .word-row {
+    gap: 8px; /* Comfortable letter spacing on mobile */
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap; /* Allow wrapping if word is too long */
   }
 
-  #alphabet-grid {
-    /* Tablet: 30px min, 10px gap */
-    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-    max-width: 500px;
-    gap: 10px;
+  /* The Letters - BIGGER NOW */
+  h1 .letter-char {
+    font-size: 30px; /* Increased from 22px to fill space */
   }
-
-  .alpha-cell {
-    width: 28px;
-    height: 28px;
+  
+  /* Nav Bar - Clean Wrap, No Scroll */
+  #nav-container { 
+    padding: 6px; 
+    overflow: visible; /* No scroll */
+    justify-content: center; /* Center everything */
+    width: 90%; /* Ensure it doesn't touch edges */
   }
-
-  .mini-module {
-    width: 20px;
-    height: 20px;
-  }
+  .nav-tab { font-size: 12px; padding: 6px 10px; min-height: 40px; }
 }
 
-/* Mobile Devices (Phones) */
-@media (max-width: 600px) and (min-width: 376px) {
-  h1 {
-    font-size: 18px;
-    padding: 8px 0;
-    letter-spacing: 2px;
-  }
-
-  #nav-container {
-    gap: 6px;
-    padding: 6px;
-  }
-
-  .nav-tab {
-    font-size:12px;
-    padding: 8px 14px;
-    min-height: 40px;
-  }
-
-  button#themeButton,
-  button#colorHintsButton {
-    font-size: 22px;
-    padding: 8px 10px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .legend-overlay {
-    width: 95%;
-    padding: 10px;
-    max-height: calc(100vh - 80px);
-    border-radius: 10px;
-  }
-
-  .legend-section h3 {
-    font-size: 11px;
-  }
-
-  .legend-desc {
-    font-size: 10px;
-  }
-
-  .color-guide {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .guide-item {
-    font-size: 10px;
-    padding: 3px 6px;
-  }
-
-  #alphabet-grid {
-    /* Mobile: 30px min, 6px gap */
-    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-    max-width: 450px; /* Enforces 12-col wrap */
-    gap: 6px;
-  }
-
-  .alpha-cell {
-    width: 24px;
-    height: 24px;
-  }
-
-  .mini-module {
-    width: 16px;
-    height: 16px;
-  }
+/* Micro Mobile (Galaxy Fold Cover < 350px) */
+@media (max-width: 350px) {
+  /* Only shrink if absolutely necessary */
+  h1 .letter-char { font-size: 24px; }
+  .nav-tab { font-size: 11px; padding: 6px 8px; }
+  
+  /* Even tighter */
+  .legend-group { min-width: 50px; }
+  
+  .alpha-cell { width: 28px; height: 28px; }
+  .mini-module { width: 20px; height: 20px; }
 }
 
-/* Extra Small Mobile Devices (≤375px) */
-@media (max-width: 375px) {
-  h1 {
-    font-size: 16px;
-    padding: 6px 0;
-    letter-spacing: 1px;
-  }
-
-  #nav-container {
-    gap: 4px;
-    padding: 4px;
-  }
-
-  .nav-tab {
-    font-size: 11px;
-    padding: 6px 10px;
-    min-height: 38px;
-  }
-
-  button#themeButton,
-  button#colorHintsButton {
-    font-size: 20px;
-    padding: 6px 8px;
-    min-width: 40px;
-    min-height: 40px;
-  }
-
-  .legend-overlay {
-    width: 95vw;
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  .legend-overlay h2 {
-    font-size: 16px;
-    margin-bottom: 8px;
-  }
-
-  #alphabet-grid {
-    /* Small Mobile: 26px min, 6px gap */
-    grid-template-columns: repeat(auto-fit, minmax(26px, 1fr));
-    gap: 6px;
-  }
-
-  .alpha-cell {
-    width: 22px;
-    height: 22px;
-  }
-
-  .mini-module {
-    width: 14px;
-    height: 14px;
-  }
-
-  .legend-section h3 {
-    font-size: 10px;
-  }
-
-  .legend-desc {
-    font-size: 9px;
-  }
-}
-
-/* Landscape Mobile - Optimize for horizontal space */
+/* Landscape */
 @media (max-width: 900px) and (orientation: landscape) {
   .legend-overlay {
-    max-height: calc(100vh - 60px);
-    width: 70%;
-    max-width: 600px;
-    padding: 10px 14px;
-  }
-
-  #alphabet-grid {
-    /* Landscape: 32px min, 12px col-gap */
-    grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
-    gap: 6px 12px;
+    max-height: calc(100vh - 40px);
+    width: 80%;
   }
 }
 
 /* =========================================
-   GAME UI STATES (Theming Support)
+   GAME UI & THEMING
    ========================================= */
+/* GAMEPLAY TEXT HUD HIGHLIGHTING (Consolidated) */
+.char-done { color: var(--text-color-light); text-decoration: line-through; opacity: 0.6; }
+.char-current { color: var(--brand-primary); text-decoration: underline; text-underline-offset: 4px; font-weight: 700; }
+.char-future { color: var(--text-color); opacity: 0.4; }
 
-.char-done {
-  color: var(--text-color-light);
-  text-decoration: line-through;
-  opacity: 0.6;
-}
+.feedback-msg.success { color: #44ff44; }
+.feedback-msg.error { color: #ff4444; }
 
-.char-current {
-  color: var(--accent-color);
-  border-bottom: 2px solid var(--accent-color);
-  font-weight: 700;
-}
-
-.char-future {
-  color: var(--text-color);
-  opacity: 0.3;
-}
-
-.feedback-msg.success {
-  color: #44ff44; /* Keep bright green for success */
-}
-.feedback-msg.error {
-  color: #ff4444; /* Keep bright red for error */
-}
-
-/* Light mode overrides for better contrast */
-body.light-mode .feedback-msg.success { color: #00aa00; }
-body.light-mode .feedback-msg.error { color: #cc0000; }
+body.light-mode .feedback-msg.success { color: #15803d; }
+body.light-mode .feedback-msg.error { color: #b91c1c; }
+body.light-mode .stat-pill { background: var(--surface-glass); border-color: var(--surface-border); backdrop-filter: blur(5px); }
+body.light-mode .target-display { background: var(--surface-glass); border-color: var(--surface-border); backdrop-filter: blur(5px); }

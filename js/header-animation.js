@@ -7,8 +7,8 @@
  */
 
 const AnimatedHeader = (() => {
-    // Text Configuration with non-breaking spaces
-    const TITLE_TEXT = "ALFABETO\u00A0MODULAR";
+    // Text Configuration with standard space for splitting
+    const TITLE_TEXT = "ALFABETO MODULAR";
 
     // Animation Timing Configuration
     const CONFIG = {
@@ -22,7 +22,7 @@ const AnimatedHeader = (() => {
     // Word Indices based on TITLE_TEXT structure
     const WORDS = [
         { start: 0, end: 7, text: "ALFABETO" },
-        { start: 9, end: 15, text: "MODULAR" }
+        { start: 8, end: 14, text: "MODULAR" }
     ];
 
     // State Management
@@ -48,35 +48,62 @@ const AnimatedHeader = (() => {
         canvasContainer.id = 'header-canvas-container';
         titleElement.appendChild(canvasContainer);
 
-        // 2. Build Letter Elements
+        // 2. Build Letter Elements (Grouped by Words)
         letterData = [];
-        TITLE_TEXT.split('').forEach((char, index) => {
-            const wrapper = document.createElement('span');
-            wrapper.className = 'letter-wrapper';
-            wrapper.id = `letter-wrapper-${index}`;
+        const words = TITLE_TEXT.split(' ');
 
-            const charSpan = document.createElement('span');
-            charSpan.className = 'letter-char';
-            charSpan.textContent = char;
+        words.forEach((wordText, wordIndex) => {
+            // Create Word Row Container
+            const wordRow = document.createElement('div');
+            wordRow.className = 'word-row';
+            textLayer.appendChild(wordRow);
 
-            wrapper.appendChild(charSpan);
-            textLayer.appendChild(wrapper);
+            wordText.split('').forEach((char, charIndex) => {
+                // Calculate global index (approximate for ID) or just use logic
+                const globalIndex = letterData.length;
 
-            letterData.push({
-                index,
-                char,
-                wrapper,    // DOM element reference
-                charSpan,   // Reference to hide/show text
-                active: false,
-                opacity: 0, // For fade transition
-                scale: 0.5, // For scale transition
-                x: 0,
-                y: 0,
-                // Organic Rotation Physics (Randomized per module)
-                speedX: 0.1 + Math.random() * 0.15, // Slow var X
-                speedY: 0.8 + Math.random() * 0.4,  // Main Y rotation var
-                phaseX: Math.random() * Math.PI * 2,
-                phaseY: Math.random() * Math.PI * 2
+                const wrapper = document.createElement('span');
+                wrapper.className = 'letter-wrapper';
+                wrapper.id = `letter-wrapper-${globalIndex}`;
+
+                const charSpan = document.createElement('span');
+                charSpan.className = 'letter-char';
+                charSpan.textContent = char;
+
+                // Color Logic: Apply Modular Color
+                if (typeof getBranchStyle === 'function') {
+                    const style = getBranchStyle(char);
+                    // Standardized Conversion via shared helper logic
+                    // Mapping p5 HSB to CSS HSL
+                    const h = style.h;
+                    const s = style.s;
+                    const l = style.b / 1.5; // Adjusted for CSS Lightness (100 -> ~66%)
+
+                    charSpan.style.color = `hsl(${h}, ${s}%, ${l}%)`;
+                    // Clean look: Subtle shadow instead of neon glow
+                    // Was: 0 0 12px ... 0.6
+                    charSpan.style.textShadow = `0 2px 4px hsla(${h}, ${s}%, ${l}%, 0.3)`;
+                }
+
+                wrapper.appendChild(charSpan);
+                wordRow.appendChild(wrapper);
+
+                letterData.push({
+                    index: globalIndex,
+                    char,
+                    wrapper,    // DOM element reference
+                    charSpan,   // Reference to hide/show text
+                    active: false,
+                    opacity: 0, // For fade transition
+                    scale: 0.5, // For scale transition
+                    x: 0,
+                    y: 0,
+                    // Organic Rotation Physics (Randomized per module)
+                    speedX: 0.1 + Math.random() * 0.15, // Slow var X
+                    speedY: 0.8 + Math.random() * 0.4,  // Main Y rotation var
+                    phaseX: Math.random() * Math.PI * 2,
+                    phaseY: Math.random() * Math.PI * 2
+                });
             });
         });
 
@@ -110,6 +137,12 @@ const AnimatedHeader = (() => {
             p.draw = function () {
                 p.clear();
                 rotation += 0.002; // Global time base
+
+                // Centralized Lighting - Declared ONCE per frame
+                p.directionalLight(255, 255, 255, 0, 0, -1);  // Front
+                p.directionalLight(200, 200, 200, 0, 0, 1);   // Back
+                p.directionalLight(150, 150, 150, 1, 0, 0);   // Right
+                p.directionalLight(150, 150, 150, -1, 0, 0);  // Left
 
                 // Render active modules
                 letterData.forEach(item => {
@@ -189,32 +222,26 @@ const AnimatedHeader = (() => {
         const points = getPointsForChar(item.char);
         const size = 18; // Reduced Size
 
-        // Contrast Adjustment
-        // Logic Flipped because Text Layer Background determines contrast
+        // Consistent Colors Across Themes
+        // Use original palette colors regardless of theme
         let finalB = style.b;
-        let strokeW = 1.2;
-
-        const isDarkAppMode = getIsDarkMode();
-
-        if (isDarkAppMode) {
-            // App is DARK -> Header BG is BLUE (#a3b8ef)
-            // Modules must be DARK/STRONG to contrast with the mid-tone Blue
-            finalB = style.b * 0.4; // Slightly darker for clear contrast against blue
-            strokeW = 1.6;
-        } else {
-            // App is LIGHT -> Header BG is DARK SLATE (#2c3e50)
-            // Modules must be BRIGHT to pop against dark slate
-            finalB = 100;
-            strokeW = 1.4; // Good visibility
-        }
+        let strokeW = 1.5;
 
         // 1. Wireframe Box
         p.noFill();
-        p.stroke(style.h, style.s, finalB, item.opacity);
+
+        // Improve contrast in Light Mode for high-brightness colors
+        let strokeB = finalB;
+        if (document.body.classList.contains('light-mode') && finalB > 70) {
+            strokeB = finalB * 0.8; // Darken stroke slightly for definition
+        }
+
+        p.stroke(style.h, style.s, strokeB, item.opacity);
         p.strokeWeight(strokeW);
         p.box(size);
 
         // 2. Corner Points
+        p.push();
         p.noStroke();
         p.fill(style.h, style.s, finalB, item.opacity);
 
@@ -229,6 +256,8 @@ const AnimatedHeader = (() => {
                 }
             }
         }
+
+        p.pop();
 
         p.pop();
     }
