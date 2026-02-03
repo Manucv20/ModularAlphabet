@@ -42,8 +42,8 @@ Aprende el sistema jugando:
 - **Sistema custom**: Reemplaza orbitControl() de p5.js para control total
 
 ### Temas Optimizados
-- **Modo Oscuro**: Negro profundo (#0f0f11) OLED-friendly
-- **Modo Claro**: Beige cálido (#ebe8e3) para reducir fatiga visual
+- **Modo Oscuro**: Deep Void Blue (#0B0C15) Professional & Cinematic
+- **Modo Claro**: Crisp Alabaster (#F9F9FB) Clean & Modern
 - **Meta theme-color**: Color dinámico de barra del navegador móvil
 
 ### Responsive por Defecto
@@ -79,7 +79,8 @@ ModularAlphabet/
 - **State Management**: Sistema global con sincronización automática
 - **Pixel Density**: Optimización pixelDensity(1) para rendimiento
 - **Memory Safe**: Cleanup automático de instancias p5.js
-- **DRY Utilities**: Helpers centralizados en shared.js
+- **DRY Utilities**: Helpers centralizados en `shared.js` para color y geometría del cubo.
+- **Master Audit (v1.1)**: Sistema saneado de deuda técnica y redundancias visuales.
 
 ## 🚀 Instalación
 
@@ -134,4 +135,12 @@ Este proyecto es de código abierto y está disponible para uso educativo y expe
 
 ---
 
-**⚡ Production Ready** | **🎯 0 Errores** | **📱 Mobile First** | **🎨 Responsive Design**
+### 💎 **Codebase Audit & Optimization (Master Pass)**
+- **Refactorización de Lógica**: Eliminación de redundancias en JS y CSS.
+- **Detección Dinámica**: Mejorado el escalado de módulos 3D en dispositivos móviles.
+- **Sincronización de Temas**: Unificación total de variables CSS y estado global JS.
+- **Clean Architecture**: Eliminación de absoluta dependencia de `!important` a favor de una cascada limpia.
+
+---
+
+**⚡ Production Ready** | **🎯 0 Technical Debt** | **📱 Mobile First** | **🎨 Responsive Design**

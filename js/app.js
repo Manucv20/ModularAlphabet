@@ -1,5 +1,5 @@
 /**
- * main.js - Manejo global de la aplicación, UI, sistema de temas y navegación
+ * app.js - Global App logic: UI, Themes, and Mode Navigation.
  */
 
 // Estado Global - Definido inmediatamente
@@ -27,13 +27,13 @@ function updateBodyTheme() {
         if (btn) btn.innerHTML = '☀'; // Icono Sol (para cambiar a día)
         if (btn) btn.setAttribute('title', 'Cambiar a Modo Día');
         // Update mobile browser bar color (dark)
-        if (metaTheme) metaTheme.setAttribute('content', '#0f0f11');
+        if (metaTheme) metaTheme.setAttribute('content', '#0B0C15');
     } else {
         document.body.classList.add('light-mode');
         if (btn) btn.innerHTML = '☾'; // Icono Luna (para cambiar a noche)
         if (btn) btn.setAttribute('title', 'Cambiar a Modo Noche');
-        // Update mobile browser bar color (warm beige)
-        if (metaTheme) metaTheme.setAttribute('content', '#ebe8e3');
+        // Update mobile browser bar color (Clean Slate White)
+        if (metaTheme) metaTheme.setAttribute('content', '#F8FAFC');
     }
 }
 
@@ -54,22 +54,17 @@ function toggleGlobalTheme() {
 // ==========================================
 // COLOR HINTS
 // ==========================================
-
 function toggleColorHints() {
     AppState.colorHintsEnabled = !AppState.colorHintsEnabled;
-    const btn = document.getElementById('colorHintsButton');
+    const btns = document.querySelectorAll('.color-toggle-btn');
 
-    if (btn) {
+    btns.forEach(btn => {
         if (AppState.colorHintsEnabled) {
-            btn.innerHTML = '🎨';
-            btn.style.background = 'var(--accent-color)';
-            btn.style.color = 'white';
+            btn.classList.add('active');
         } else {
-            btn.innerHTML = '⚫';
-            btn.style.background = 'none';
-            btn.style.color = 'var(--text-color)';
+            btn.classList.remove('active');
         }
-    }
+    });
 
     if (AppState.currentP5 && typeof AppState.currentP5.updateColorHints === 'function') {
         AppState.currentP5.updateColorHints(AppState.colorHintsEnabled);
@@ -80,10 +75,11 @@ function toggleColorHints() {
 // LEGEND UI
 // ==========================================
 
-function toggleSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.toggle('collapsed');
+function toggleGuide() {
+    const content = document.getElementById('guide-content');
+
+    if (content) {
+        content.classList.toggle('collapsed');
     }
 }
 
@@ -147,10 +143,40 @@ function updateUI() {
         }
     });
 
-    // Visibilidad del botón de hints
-    const colorHintsButton = document.getElementById('colorHintsButton');
-    if (colorHintsButton) {
-        colorHintsButton.style.display = (AppState.currentMode === 'home') ? 'none' : 'flex';
+    // Update body class for mode-specific styling (like button positioning)
+    document.body.classList.remove('mode-home', 'mode-generator', 'mode-game');
+    document.body.classList.add(`mode-${AppState.currentMode}`);
+
+    // RELOCATE THEME BUTTON
+    const themeBtn = document.getElementById('themeButton');
+    if (themeBtn) {
+        if (AppState.currentMode === 'home') {
+            // Very small button in footer for clean look
+            const footer = document.querySelector('footer');
+            if (footer) {
+                footer.appendChild(themeBtn);
+                themeBtn.classList.remove('floating-btn');
+            }
+        } else if (AppState.currentMode === 'generator') {
+            // Inside control bar util group
+            const utilGroup = document.getElementById('gen-util-group');
+            if (utilGroup) {
+                utilGroup.appendChild(themeBtn);
+                themeBtn.classList.remove('floating-btn');
+            }
+        } else if (AppState.currentMode === 'game') {
+            // Inside game HUD, opposite to color button
+            const targetWrapper = document.querySelector('.target-wrapper');
+            if (targetWrapper) {
+                // Insert at the beginning (opposite to color button which is at the end)
+                targetWrapper.insertBefore(themeBtn, targetWrapper.firstChild);
+                themeBtn.classList.remove('floating-btn');
+
+                // Remove ghost spacer if it exists to let theme button take its place
+                const spacer = targetWrapper.querySelector('.ghost-spacer');
+                if (spacer) spacer.style.display = 'none';
+            }
+        }
     }
 }
 
@@ -185,4 +211,4 @@ window.onerror = function (msg, url, line) {
 // Exponer funciones globales
 window.toggleGlobalTheme = toggleGlobalTheme;
 window.toggleColorHints = toggleColorHints;
-window.toggleSection = toggleSection;
+window.toggleGuide = toggleGuide;

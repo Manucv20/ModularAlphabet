@@ -129,8 +129,12 @@ const homeSketch = (p) => {
         cam.setPosition(smoothPos.x, smoothPos.y, smoothPos.z);
         cam.lookAt(0, 0, 0);
 
-        // Luces (Restaurar)
+        // Luces (Centralized)
         p.ambientLight(100);
+        p.directionalLight(255, 255, 255, 0, 0, -1);  // Front
+        p.directionalLight(200, 200, 200, 0, 0, 1);   // Back
+        p.directionalLight(150, 150, 150, 1, 0, 0);   // Right
+        p.directionalLight(150, 150, 150, -1, 0, 0);  // Left
         p.pointLight(255, 255, 255, 0, -200, 400);
 
         // Dibujar Módulos
@@ -206,86 +210,89 @@ const homeSketch = (p) => {
     }
 
     // ==========================================
-    // HELPER: Generar Leyenda DOM (Grouped by Branch)
+    // HELPER: Generar Leyenda DOM (Chromatically Grouped)
     // ==========================================
     function generateLegendGrid() {
-        // 1. Generate Dynamic Color Guide (Source of Truth: shared.js)
-        const guideContainer = document.querySelector('.color-guide');
-        if (guideContainer && typeof BRANCH_GROUPS !== 'undefined') {
-            guideContainer.innerHTML = ''; // Clear hardcoded HTML
-
-            BRANCH_GROUPS.forEach(group => {
-                let item = document.createElement('div');
-                item.className = 'guide-item';
-
-                // Calculate representative color (Middle of hue range)
-                let hMid = (group.hStart + group.hEnd) / 2;
-                // Handle wrap-around case for Red (350->15)
-                if (group.hStart > group.hEnd) hMid = (group.hStart + group.hEnd + 360) / 2 % 360;
-
-                let colorCss = hsbToCss(hMid, group.s, group.b);
-
-                item.innerHTML = `<span class="swatch" style="background:${colorCss}"></span> ${group.label}`;
-                guideContainer.appendChild(item);
-            });
-        }
-
-        // 2. Generate Alphabet Grid
         const gridContainer = document.getElementById('alphabet-grid');
-        if (!gridContainer) return;
+        if (!gridContainer || typeof BRANCH_GROUPS === 'undefined') return;
+
+        // Clear previous content
         gridContainer.innerHTML = '';
 
-        // All characters in order
-        const allChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÑ0123456789.?!,-';
+        // Remove the separate color guide if it exists, as headers now serve that purpose
+        const separateGuide = document.querySelector('.color-guide');
+        if (separateGuide) separateGuide.style.display = 'none';
 
-        // Capture preview elements by ID
+        // Capture preview elements
         const previewVisual = document.getElementById('previewVisual');
         const previewText = document.getElementById('previewText');
         const previewDesc = document.getElementById('previewDesc');
 
-        // Create cells for each character
-        allChars.split('').forEach(char => {
-            let cell = document.createElement('div');
-            cell.className = 'alpha-cell';
+        // Iterate through each Chromatic Group
+        BRANCH_GROUPS.forEach(group => {
+            // 1. Create Group Container
+            const groupSection = document.createElement('div');
+            groupSection.className = 'legend-group';
 
-            // Create VISUAL representation (the dots)
-            let visual = createCSSModule(char);
-            cell.appendChild(visual);
+            // Calculate representative color
+            let hMid = (group.hStart + group.hEnd) / 2;
+            if (group.hStart > group.hEnd) hMid = (group.hStart + group.hEnd + 360) / 2 % 360;
+            const colorCss = hsbToCss(hMid, group.s, group.b);
 
-            // Interaction Handlers
-            const updatePreview = () => {
-                // 1. Update Text
-                if (previewText) {
-                    previewText.innerText = char;
-                    previewText.style.color = getBranchColor(char);
-                }
+            // Inject Color for CSS utilization
+            groupSection.style.setProperty('--group-color', colorCss);
 
-                // 2. Clone Visual Module (Dots) and put in preview
-                if (previewVisual) {
-                    previewVisual.innerHTML = ''; // Clear previous
-                    let largeVisual = visual.cloneNode(true); // Clone the DOM node
-                    previewVisual.appendChild(largeVisual);
-                }
+            // 2. Minimalist Header (Visual Anchor Only)
+            // No text label by default, just a visual anchor if needed via CSS
+            const header = document.createElement('div');
+            header.className = 'group-header';
+            header.innerHTML = `<span class="group-dot"></span>`;
+            // The label is removed to force visual reliance, or hidden via CSS if present
+            groupSection.appendChild(header);
 
-                // 3. Update Description (Find which group it belongs to)
-                if (previewDesc && typeof BRANCH_GROUPS !== 'undefined') {
-                    let group = BRANCH_GROUPS.find(g => g.chars.includes(char));
-                    let label = group ? group.label : "Desconocido";
+            // 3. Create Flex Grid for this Group
+            const groupGrid = document.createElement('div');
+            groupGrid.className = 'group-grid';
 
-                    // Add specific type context if needed
-                    if ("0123456789".includes(char)) label += " (Número)";
-                    else if (".,?!-".includes(char)) label += " (Signo)";
-                    else label += " (Letra)";
+            // 4. Populate with Characters
+            group.chars.split('').forEach(char => {
+                let cell = document.createElement('div');
+                cell.className = 'alpha-cell'; // Re-use existing class for module styling
 
-                    previewDesc.innerText = label;
-                    previewDesc.style.color = getBranchColor(char);
-                }
-            };
+                // Create VISUAL representation
+                let visual = createCSSModule(char);
+                cell.appendChild(visual);
 
-            cell.addEventListener('mouseenter', updatePreview);
-            cell.addEventListener('mousedown', updatePreview); // click/tap
+                // Interaction Handlers (Keep existing logic)
+                const updatePreview = () => {
+                    const branchColor = getBranchColor(char);
+                    const panel = document.getElementById('char-preview-panel');
 
-            gridContainer.appendChild(cell);
+                    if (previewText) {
+                        previewText.innerText = char;
+                        previewText.style.color = branchColor;
+                    }
+                    if (previewVisual) {
+                        previewVisual.innerHTML = '';
+                        let largeVisual = visual.cloneNode(true);
+                        previewVisual.appendChild(largeVisual);
+                    }
+
+                    // CREATIVE UNIFICATION: Color the Panel Border
+                    if (panel) {
+                        panel.style.borderColor = branchColor;
+                        panel.style.boxShadow = `0 4px 20px ${branchColor}33`; // 20% opacity glow
+                    }
+                };
+
+                cell.addEventListener('mouseenter', updatePreview);
+                cell.addEventListener('mousedown', updatePreview);
+
+                groupGrid.appendChild(cell);
+            });
+
+            groupSection.appendChild(groupGrid);
+            gridContainer.appendChild(groupSection);
         });
     }
 
@@ -429,10 +436,20 @@ const homeSketch = (p) => {
             this.p.rotateY(this.angleY);
             this.p.rotateX(this.angleX);
 
+            let isDark = getIsDarkMode();
+            let strokeW = isDark ? 1.6 : 1.2;
+
             // MARCO (usando tamaño pulsante)
             this.p.noFill();
-            this.p.stroke(this.style.h, this.style.s, this.style.b);
-            this.p.strokeWeight(1);
+
+            // Contrast fix for Light Mode
+            let strokeB = this.style.b;
+            if (!isDark && strokeB > 70) {
+                strokeB = strokeB * 0.8;
+            }
+
+            this.p.stroke(this.style.h, this.style.s, strokeB);
+            this.p.strokeWeight(strokeW);
             this.p.box(this.currentSize);
 
             // PUNTOS MODULARES
@@ -443,8 +460,11 @@ const homeSketch = (p) => {
         drawModularPoints() {
             if (!this.points) return;
 
+            this.p.push();
             this.p.noStroke();
-            this.p.fill(this.style.h, this.style.s, this.style.b); // Usar el mismo color de rama
+            let pointS = Math.min(100, this.style.s * 1.2);
+            let pointB = Math.min(100, this.style.b * 1.3);
+            this.p.fill(this.style.h, pointS, pointB);
 
             // Nodos base en espacio local (-0.5 a 0.5)
             // Movemos Z a 0.5 para que estén en la CARA FRONTAL (Bordes/Esquinas)
@@ -456,10 +476,12 @@ const homeSketch = (p) => {
                     let n = NODES[i];
                     this.p.push();
                     this.p.translate(n[0] * this.size, n[1] * this.size, n[2] * this.size);
-                    this.p.sphere(this.size * 0.12);
+                    this.p.sphere(this.size * 0.16); // Larger for better visibility
                     this.p.pop();
                 }
             }
+
+            this.p.pop();
         }
     }
 

@@ -157,9 +157,12 @@ const gameSketch = (p) => {
         cam.lookAt(0, 0, 0);
 
 
-        // Luces
-        p.ambientLight(150);
-        p.pointLight(255, 255, 255, 0, 0, 500);
+        // Optimización de Iluminación (3-Point Setup)
+        p.ambientLight(150); // Base level
+        p.directionalLight(255, 255, 255, 1, 1, -1);  // Key Light (Top-Right-Front)
+        p.directionalLight(100, 100, 110, -1, 0, -1); // Fill Light (Left-Front)
+        p.directionalLight(50, 50, 50, 0, -1, 0);     // Rim Light (Top)
+        // Removed excessive point lights for performance
 
         updatePhysics();
         handleHover();
@@ -236,10 +239,17 @@ const gameSketch = (p) => {
                 // Ignore matched modules (they might disappear or stay static)
                 if (m1.isMatched || m2.isMatched) continue;
 
-                let d = p5.Vector.dist(m1.pos, m2.pos);
-                let minDist = (m1.size + m2.size) * 0.7; // Buffer zone
+                // MANUAL DISTANCE SQUARED (Optimized & Safe)
+                let dx = m1.pos.x - m2.pos.x;
+                let dy = m1.pos.y - m2.pos.y;
+                let dz = m1.pos.z - m2.pos.z;
+                let dSq = (dx * dx) + (dy * dy) + (dz * dz);
 
-                if (d < minDist) {
+                let minDist = (m1.size + m2.size) * 0.7;
+                let minDistSq = minDist * minDist;
+
+                if (dSq < minDistSq) {
+                    let d = Math.sqrt(dSq);
                     // Calculate push vector (Normal)
                     let push = p5.Vector.sub(m1.pos, m2.pos).normalize();
                     let overlap = (minDist - d) * 0.05; // Soft correction factor
@@ -335,7 +345,7 @@ const gameSketch = (p) => {
             this.rotVel = p.createVector(p.random(-0.02, 0.02), p.random(-0.02, 0.02), 0);
 
             this.size = 0;
-            this.targetSize = ui.isMobile ? 35 : 50;
+            this.targetSize = p.width < 600 ? 35 : 50; // Dynamic mobile detection
 
             // Updated to use shared logic
             this.branchStyle = getBranchStyle(letter);
@@ -379,9 +389,11 @@ const gameSketch = (p) => {
                 // Tema dinámico para las cajas
                 let isDark = getIsDarkMode();
                 if (isDark) {
-                    h = 220; s = 20; b = 40; // Dark mode box color
+                    // Dark Mode: Deep Glassy Indigo (Brighter than before: 40->70)
+                    h = 240; s = 40; b = 60;
                 } else {
-                    h = 215; s = 40; b = 30; // Light mode: Elegant Navy Blue (Matches --text-color)
+                    // Light Mode: Solid Slate (Darker for contrast against white BG)
+                    h = 220; s = 40; b = 30;
                 }
             }
 
@@ -392,6 +404,9 @@ const gameSketch = (p) => {
             this.p.rotateZ(this.rot.z);
 
             this.p.noFill();
+
+            // Contrast Stroke Logic
+            let baseStroke = getIsDarkMode() ? 1.5 : 1.2;
 
             if (this.errorFrames > 0) {
                 this.p.stroke(0, 90, 90);
@@ -405,11 +420,16 @@ const gameSketch = (p) => {
             } else if (this.isHovered) {
                 let sel = CONFIG.SELECTION_COLOR;
                 this.p.stroke(sel.h, sel.s, sel.b);
-                this.p.strokeWeight(2);
+                this.p.strokeWeight(2.5);
                 h = sel.h; s = sel.s; b = sel.b;
             } else {
-                this.p.stroke(h, s, b);
-                this.p.strokeWeight(1);
+                let isDark = getIsDarkMode();
+                let strokeB = b;
+                if (!isDark && b > 70) {
+                    strokeB = b * 0.8;
+                }
+                this.p.stroke(h, s, strokeB);
+                this.p.strokeWeight(baseStroke);
             }
 
             this.p.box(this.size);
@@ -424,18 +444,24 @@ const gameSketch = (p) => {
 
             const NODES = get3DNodePositions(); // Shared geometry
 
+            // Add lights from multiple directions for uniform illumination
+            this.p.push();
             this.p.noStroke();
-            this.p.fill(h, s, b);
+            let pointS = Math.min(100, s * 1.2);
+            let pointB = Math.min(100, b * 1.3);
+            this.p.fill(h, pointS, pointB);
 
             for (let i of pts) {
                 if (NODES[i]) {
                     let n = NODES[i];
                     this.p.push();
                     this.p.translate(n[0] * this.size, n[1] * this.size, n[2] * this.size);
-                    this.p.sphere(this.size * 0.15);
+                    this.p.sphere(this.size * 0.18);
                     this.p.pop();
                 }
             }
+
+            this.p.pop();
         }
         setError() {
             this.errorFrames = 60;
@@ -443,14 +469,7 @@ const gameSketch = (p) => {
         }
     }
 
-    function drawBounds() {
-        p.push();
-        p.noFill();
-        p.stroke(30);
-        let b = CONFIG.BOUNDS_SIZE * 2;
-        p.box(b);
-        p.pop();
-    }
+
 
     function updateUI() {
         if (ui.score) ui.score.html(state.score);
@@ -469,16 +488,24 @@ const gameSketch = (p) => {
     function showFeedback(msg, type) {
         if (!ui.feedback) return;
         ui.feedback.html(msg);
-        ui.feedback.style('opacity', '1');
-        ui.feedback.style('color', type === 'error' ? '#ff4444' : '#44ff44');
-        setTimeout(() => ui.feedback.style('opacity', '0'), 1500);
+        // Feedback State (Colored)
+        ui.feedback.style('color', type === 'error' ? '#EF4444' : '#10B981');
+
+        // Revert to "Game Status" after delay instead of vanishing
+        setTimeout(() => {
+            ui.feedback.html(`NIVEL ${state.level}`);
+            ui.feedback.style('color', 'var(--text-color)');
+        }, 1500);
     }
 
-    p.windowResized = updateCanvasSize;
     p.mousePressed = checkClick;
 
     function updateCanvasSize() {
         let el = document.getElementById('canvas-wrapper');
         if (el) p.resizeCanvas(el.clientWidth, el.clientHeight);
     }
+
+    p.windowResized = function () {
+        updateCanvasSize();
+    };
 };

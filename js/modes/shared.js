@@ -37,26 +37,26 @@ function getColorHintsEnabled() {
  * @returns {object} { h, s, b } - HSB values (p5 standard: 360, 100, 100).
  */
 const BRANCH_GROUPS = [
-    // NUMBERS: Hot Pink -> Magenta (Vibrant & Playful)
-    { chars: "0123456789", label: "0-9", hStart: 310, hEnd: 330, s: 80, b: 100 },
-
     // A-F: Deep Rose -> Coral (Warm & Energetic)
-    { chars: "ABCDEF", label: "A-F", hStart: 350, hEnd: 15, s: 90, b: 100 },
+    { chars: "ABCDEF", label: "A-F", hStart: 350, hEnd: 15, s: 95, b: 100 },
 
     // G-L: Warm Gold -> Amber (Rich & Bright)
     { chars: "GHIJKL", label: "G-L", hStart: 40, hEnd: 55, s: 100, b: 100 },
 
     // M-R: Spring Green -> Teal (Fresh & Natural)
-    { chars: "MNOPQR", label: "M-R", hStart: 150, hEnd: 175, s: 85, b: 100 },
+    { chars: "MNOPQR", label: "M-R", hStart: 150, hEnd: 175, s: 90, b: 100 },
 
     // S-X: Sky Blue -> Deep Azure (Start of Cool Tones)
-    { chars: "STUVWX", label: "S-X", hStart: 200, hEnd: 230, s: 90, b: 100 },
+    { chars: "STUVWX", label: "S-X", hStart: 200, hEnd: 230, s: 95, b: 100 },
 
     // Y-Ñ: Indigo -> Electric Violet (Mysterious & Magic)
-    { chars: "YZÑ", label: "Y-Ñ", hStart: 260, hEnd: 290, s: 85, b: 100 },
+    { chars: "YZÑ", label: "Y-Ñ", hStart: 260, hEnd: 290, s: 90, b: 100 },
+
+    // NUMBERS: Hot Pink -> Magenta (Vibrant & Playful)
+    { chars: "0123456789", label: "0-9", hStart: 310, hEnd: 330, s: 90, b: 100 },
 
     // SYMBOLS: Neutral Gray/Blue (Low Saturation)
-    { chars: ".,?!- ", label: "Signos", hStart: 195, hEnd: 195, s: 0, b: 80 }
+    { chars: ".,?!- ", label: "Signos", hStart: 195, hEnd: 195, s: 0, b: 90 }
 ];
 
 function getBranchStyle(char) {

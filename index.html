@@ -14,24 +14,19 @@
     />
     <link rel="stylesheet" href="css/style.css?v=3">
     <!-- Meta Theme Color for Mobile Browsers (Start with Dark Mode) -->
-    <meta name="theme-color" content="#0f0f11">
+    <meta name="theme-color" content="#0B0C15">
   </head>
   <body>
+    <!-- Floating Controls -->
+    <!-- Theme Toggle (Top Left) -->
+    <button id="themeButton" title="Cambiar tema" aria-label="Cambiar tema oscuro/claro" onclick="toggleGlobalTheme()">☾</button>
+    
     <h1 id="animated-title">ALFABETO&nbsp;MODULAR</h1>
 
     <div id="nav-container">
       <button class="nav-tab active" data-mode="home">INICIO</button>
       <button class="nav-tab" data-mode="generator">GENERADOR</button>
       <button class="nav-tab" data-mode="game">JUEGO 3D</button>
-
-      <!-- Separator -->
-      <div style="flex-grow: 1;"></div>
-
-      <!-- Theme Toggle -->
-      <button id="themeButton" title="Cambiar tema" aria-label="Cambiar tema oscuro/claro" onclick="toggleGlobalTheme()">☾</button>
-
-      <!-- Color Hints Toggle (Circular Button) -->
-      <button id="colorHintsButton" title="Activar/Desactivar colores" aria-label="Activar o desactivar pistas de color" onclick="toggleColorHints()">🎨</button>
     </div>
 
     <div id="canvas-wrapper">
@@ -41,29 +36,14 @@
     <!-- UI Container para Home / Intro -->
     <div id="home-ui-container" class="mode-ui" data-mode="home">
       <div class="legend-overlay" id="legendOverlay">
-        <h2>GUÍA DE CÓDIGOS</h2>
+        <h2 onclick="toggleGuide()">GUÍA DE CÓDIGOS</h2>
         
-        <div class="legend-section collapsed" id="section1">
-          <h3 onclick="toggleSection('section1')">SISTEMA CROMÁTICO</h3>
-          <div class="legend-section-content">
-            <p class="legend-desc">Los módulos se colorean según su rama estructural en el alfabeto.</p>
-            <div class="color-guide">
-              <!-- Generado dinámicamente por JS (ver home.js) -->
-              <div class="guide-item">Cargando...</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="legend-section collapsed" id="section2">
-          <h3 onclick="toggleSection('section2')">ALFABETO BINARIO</h3>
-          <div class="legend-section-content">
-            <p class="legend-desc">Cada carácter es una representación de 8 bits posicionales.</p>
-            
+        <div id="guide-content" class="guide-content collapsed">
             <!-- Nueva área de previsualización visual -->
             <div id="char-preview-panel">
               <div class="preview-left">
                 <div class="preview-visual-host" id="previewVisual"></div>
-                <span class="preview-char" id="previewText">?</span>
+                <span class="preview-char" id="previewText"></span>
               </div>
               <span class="preview-info" id="previewDesc">Toca un símbolo</span>
             </div>
@@ -72,7 +52,6 @@
               <!-- Se rellenará dinámicamente con JS -->
               <div class="alpha-placeholder">Generando guía...</div>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -82,20 +61,42 @@
       <input id="textInput" type="text" placeholder="Escribe tu frase..." />
       <button id="generateButton">GENERAR</button>
       <button id="saveButton">GUARDAR</button>
+      <!-- Integrated Utility Group (Color + Theme will be here) -->
+      <div class="util-group" id="gen-util-group">
+        <button class="color-toggle-btn icon-btn" title="Pistas de color" onclick="toggleColorHints()">🎨</button>
+      </div>
     </div>
 
     <!-- UI Placeholder para el Juego -->
     <div id="game-ui-container" class="mode-ui" data-mode="game">
       <div class="game-hud">
-        <div class="score-board">PUNTOS: <span id="scoreVal">0</span></div>
-        <div class="target-display">
-          <span class="label">TRADUCE:</span>
-          <h2 id="targetWordDisplay">Cargando...</h2>
+        
+        <!-- 1. Target Area (Center Stage) -->
+        <div class="target-wrapper">
+            <div class="target-display">
+              <span class="label">TRADUCE:</span>
+              <h2 id="targetWordDisplay">Cargando...</h2>
+            </div>
+            
+            <button class="color-toggle-btn icon-btn mini-toggle" title="Ver pistas" onclick="toggleColorHints()">🎨</button>
         </div>
-        <div id="feedbackDisplay" class="feedback-msg"></div>
+        
+        <!-- 2. Professional Stats Dashboard (Below) -->
+        <div class="stats-row">
+            <div class="stat-pill score">
+                <span class="stat-label">PUNTOS</span>
+                <span id="scoreVal" class="stat-value">0</span>
+            </div>
+            <!-- Feedback doubles as Status/Level indicator -->
+            <div id="feedbackDisplay" class="stat-pill feedback">LISTO</div>
+        </div>
+
+        <!-- 3. Instructions (Bottom Context) -->
         <div class="instructions">Busca y haz clic en la letra modular correcta</div>
+
       </div>
     </div>
+
 
     <footer>
       Hecho con p5.js • Proyecto experimental • Manuel&nbsp;Cañas&nbsp;Vidaller
