@@ -28,6 +28,9 @@ const homeSketch = (p) => {
             zoomSpeed: 0.5,
             pinchZoomSpeed: 2,
             pinchThreshold: 15,
+            pinchThresholdRatio: 0.04,
+            pinchStartDelayMs: 60,
+            maxZoomStep: 120,
             damping: 0.1,
             allowZoomWhileDragging: false
         });

@@ -208,9 +208,14 @@ function createOrbitController(p, options = {}) {
         zoomSpeed: options.zoomSpeed ?? 0.5,
         pinchZoomSpeed: options.pinchZoomSpeed ?? 2,
         pinchThreshold: options.pinchThreshold ?? 15,
+        pinchThresholdRatio: options.pinchThresholdRatio ?? 0,
+        pinchStartDelayMs: options.pinchStartDelayMs ?? 0,
+        maxZoomStep: options.maxZoomStep ?? 0,
         damping: options.damping ?? 0.1,
         allowZoomWhileDragging: options.allowZoomWhileDragging ?? false,
         lastDist: 0,
+        startDist: 0,
+        pinchStartTime: 0,
         pinchStarted: false,
         prevTouchX: undefined,
         prevTouchY: undefined
@@ -225,11 +230,14 @@ function createOrbitController(p, options = {}) {
 
         canvas.touchStarted(() => {
             if (p.touches.length === 2) {
-                state.lastDist = p.dist(
+                const currentDist = p.dist(
                     p.touches[0].x, p.touches[0].y,
                     p.touches[1].x, p.touches[1].y
                 );
+                state.startDist = currentDist;
+                state.lastDist = currentDist;
                 state.pinchStarted = false;
+                state.pinchStartTime = Date.now();
                 return false; // Prevent default
             }
         });
@@ -242,20 +250,42 @@ function createOrbitController(p, options = {}) {
                 );
 
                 if (!state.pinchStarted) {
-                    if (Math.abs(currentDist - state.lastDist) > state.pinchThreshold) {
+                    const now = Date.now();
+                    if (state.pinchStartDelayMs > 0 && (now - state.pinchStartTime) < state.pinchStartDelayMs) {
+                        state.lastDist = currentDist;
+                        return false;
+                    }
+
+                    const dynamicThreshold = Math.max(
+                        state.pinchThreshold,
+                        state.startDist * state.pinchThresholdRatio
+                    );
+                    if (Math.abs(currentDist - state.startDist) > dynamicThreshold) {
                         state.pinchStarted = true;
                         state.lastDist = currentDist; // Reset to prevent zoom jump
+                        return false;
                     }
+
+                    state.lastDist = currentDist;
+                    return false;
                 }
 
-                if (state.pinchStarted) {
-                    let delta = state.lastDist - currentDist;
-                    state.targetZ += delta * state.pinchZoomSpeed;
-                    clampTargetZ();
-                    state.lastDist = currentDist;
+                let delta = state.lastDist - currentDist;
+                let zoomDelta = delta * state.pinchZoomSpeed;
+                if (state.maxZoomStep && Math.abs(zoomDelta) > state.maxZoomStep) {
+                    zoomDelta = zoomDelta > 0 ? state.maxZoomStep : -state.maxZoomStep;
                 }
+                state.targetZ += zoomDelta;
+                clampTargetZ();
+                state.lastDist = currentDist;
                 return false; // Prevent default
             }
+        });
+
+        canvas.touchEnded(() => {
+            state.pinchStarted = false;
+            state.startDist = 0;
+            state.lastDist = 0;
         });
 
         p.mouseWheel = function (event) {
