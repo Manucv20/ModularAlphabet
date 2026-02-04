@@ -1,9 +1,9 @@
 const homeSketch = (p) => {
 
-    let targetZ = 400; // Objetivo de Radio (Distancia al centro)
     let modules = []; // Array de módulos flotantes
     let cam; // Variable para la cámara
     let canvas; // Persist canvas reference for custom controls
+    let controls; // Shared camera controls
 
     // ==========================================
     // SETUP
@@ -19,50 +19,19 @@ const homeSketch = (p) => {
         cam.setPosition(0, 0, 400);
         cam.lookAt(0, 0, 0);
 
-        // Custom Pinch Zoom (with threshold to prevent false positives)
-        let lastDist = 0;
-        let pinchStarted = false;
-        const PINCH_THRESHOLD = 15; // Pixels of movement required before zoom activates
-
-        canvas.touchStarted(() => {
-            if (p.touches.length === 2) {
-                lastDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
-                pinchStarted = false; // Reset - wait for movement
-                return false; // Prevent default
-            }
+        // Shared camera controls (preserve existing behavior)
+        controls = createOrbitController(p, {
+            startZ: 400,
+            minZ: 1,
+            maxZ: 1200,
+            rotationSpeed: 0.005,
+            zoomSpeed: 0.5,
+            pinchZoomSpeed: 2,
+            pinchThreshold: 15,
+            damping: 0.1,
+            allowZoomWhileDragging: false
         });
-
-        canvas.touchMoved(() => {
-            if (p.touches.length === 2) {
-                let currentDist = p.dist(p.touches[0].x, p.touches[0].y, p.touches[1].x, p.touches[1].y);
-
-                // Only start zooming after threshold is crossed
-                if (!pinchStarted) {
-                    if (Math.abs(currentDist - lastDist) > PINCH_THRESHOLD) {
-                        pinchStarted = true;
-                        lastDist = currentDist; // Reset to prevent zoom jump
-                    }
-                }
-
-                // Apply zoom only if pinch gesture is confirmed
-                if (pinchStarted) {
-                    let delta = lastDist - currentDist;
-                    targetZ += delta * 2;
-                    targetZ = p.constrain(targetZ, 1, 1200);
-                    lastDist = currentDist;
-                }
-                return false; // Prevent default
-            }
-        });
-
-        // Mouse wheel zoom (locks during rotation to prevent conflicts)
-        p.mouseWheel = function (event) {
-            if (p.mouseIsPressed) return false; // Prevent zoom while rotating
-
-            targetZ += event.delta * 0.5;
-            targetZ = p.constrain(targetZ, 1, 1200);
-            return false;
-        };
+        controls.attach(canvas);
 
         // Generate decorative letter cloud
         spawnIntroModules();
@@ -81,53 +50,8 @@ const homeSketch = (p) => {
         // Usar clear() para permitir que el fondo CSS (que tiene transición suave) se vea
         p.clear();
 
-        // CUSTOM CAMERA CONTROL (No orbitControl - eliminates 2-touch requirement)
-
-        // Track rotation angles
-        if (typeof p.angleX === 'undefined') {
-            p.angleX = 0;
-            p.angleY = 0;
-        }
-
-        // Mouse drag rotation (Desktop)
-        if (p.mouseIsPressed && p.touches.length === 0) {
-            let dx = p.mouseX - p.pmouseX;
-            let dy = p.mouseY - p.pmouseY;
-            p.angleY += dx * 0.005;
-            p.angleX -= dy * 0.005;
-            p.angleX = p.constrain(p.angleX, -p.PI / 2, p.PI / 2);
-        }
-
-        // Single touch drag rotation (Mobile - 1 finger)
-        if (p.touches.length === 1) {
-            let touch = p.touches[0];
-            if (typeof p.prevTouchX !== 'undefined') {
-                let dx = touch.x - p.prevTouchX;
-                let dy = touch.y - p.prevTouchY;
-                p.angleY += dx * 0.005;
-                p.angleX -= dy * 0.005;
-                p.angleX = p.constrain(p.angleX, -p.PI / 2, p.PI / 2);
-            }
-            p.prevTouchX = touch.x;
-            p.prevTouchY = touch.y;
-        } else {
-            p.prevTouchX = undefined;
-            p.prevTouchY = undefined;
-        }
-
-        // Apply rotation to camera position
-        let radius = targetZ;
-        let x = radius * p.sin(p.angleY) * p.cos(p.angleX);
-        let y = radius * p.sin(p.angleX);
-        let z = radius * p.cos(p.angleY) * p.cos(p.angleX);
-
-        // Smooth camera movement
-        let currentPos = p.createVector(cam.eyeX, cam.eyeY, cam.eyeZ);
-        let targetPos = p.createVector(x, y, z);
-        let smoothPos = p5.Vector.lerp(currentPos, targetPos, 0.1);
-
-        cam.setPosition(smoothPos.x, smoothPos.y, smoothPos.z);
-        cam.lookAt(0, 0, 0);
+        // Shared camera update (rotation + zoom + damping)
+        if (controls) controls.updateCamera(cam);
 
         // Luces (Centralized)
         p.ambientLight(100);
