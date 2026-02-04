@@ -29,6 +29,10 @@
 
   --shadow-color: rgba(0, 0, 0, 0.6);
   --shadow-spread: 0 8px 32px;
+
+  /* Home UI spacing (runtime-adjusted for different devices) */
+  --home-top-offset: 140px;
+  --home-bottom-offset: 80px;
 }
 
 body.light-mode {
@@ -1180,6 +1184,18 @@ body.light-mode .legend-overlay h2 {
     width: 90%; /* Ensure it doesn't touch edges */
   }
   .nav-tab { font-size: 12px; padding: 6px 10px; min-height: 40px; }
+
+  /* Home UI: avoid overlap with header/nav on small screens */
+  #home-ui-container {
+    align-items: flex-start;
+    padding-top: calc(var(--home-top-offset) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--home-bottom-offset) + env(safe-area-inset-bottom));
+  }
+
+  .legend-overlay {
+    width: min(600px, 94vw);
+    max-height: calc(100vh - var(--home-top-offset) - var(--home-bottom-offset) - 20px);
+  }
 }
 
 /* Micro Mobile (Galaxy Fold Cover < 350px) */
