@@ -181,6 +181,33 @@ function updateUI() {
 }
 
 // ==========================================
+// HOME UI INSETS (Responsive - Avoid Overlap)
+// ==========================================
+
+function updateHomeUiInsets() {
+    const header = document.getElementById('animated-title');
+    const nav = document.getElementById('nav-container');
+    const footer = document.querySelector('footer');
+    const root = document.documentElement;
+
+    let top = 0;
+    if (header) top += header.getBoundingClientRect().height;
+    if (nav) top += nav.getBoundingClientRect().height;
+    top += 16; // Small breathing space
+
+    let bottom = 0;
+    if (footer) bottom += footer.getBoundingClientRect().height;
+    bottom += 12; // Small breathing space
+
+    // Clamp to reasonable bounds to avoid extremes on tiny screens
+    top = Math.max(100, Math.min(top, 220));
+    bottom = Math.max(60, Math.min(bottom, 160));
+
+    root.style.setProperty('--home-top-offset', `${Math.ceil(top)}px`);
+    root.style.setProperty('--home-bottom-offset', `${Math.ceil(bottom)}px`);
+}
+
+// ==========================================
 // INICIALIZACIÓN
 // ==========================================
 
@@ -200,6 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar Home por defecto
     loadMode('home');
+
+    // Ensure Home UI spacing is accurate for current device
+    updateHomeUiInsets();
+    setTimeout(updateHomeUiInsets, 200);
+    window.addEventListener('resize', updateHomeUiInsets);
 });
 
 // Global Error Handler for p5 or script failures
