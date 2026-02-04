@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=6">
     <!-- Meta Theme Color for Mobile Browsers (Start with Dark Mode) -->
     <meta name="theme-color" content="#0B0C15">
   </head>
@@ -24,9 +24,9 @@
     <h1 id="animated-title">ALFABETO&nbsp;MODULAR</h1>
 
     <div id="nav-container">
-      <button class="nav-tab active" data-mode="home">INICIO</button>
-      <button class="nav-tab" data-mode="generator">GENERADOR</button>
-      <button class="nav-tab" data-mode="game">JUEGO 3D</button>
+      <button class="nav-tab" data-mode="generator">MAKER</button>
+      <button class="nav-tab active" data-mode="home">HOME</button>
+      <button class="nav-tab" data-mode="game">3D GAME</button>
     </div>
 
     <div id="canvas-wrapper">
@@ -59,11 +59,13 @@
     <!-- UI Container específico para el Generador -->
     <div id="ui-container" class="mode-ui" data-mode="generator">
       <input id="textInput" type="text" placeholder="Escribe tu frase..." />
-      <button id="generateButton">GENERAR</button>
-      <button id="saveButton">GUARDAR</button>
-      <!-- Integrated Utility Group (Color + Theme will be here) -->
-      <div class="util-group" id="gen-util-group">
-        <button class="color-toggle-btn icon-btn" title="Pistas de color" onclick="toggleColorHints()">🎨</button>
+      <div class="maker-actions">
+        <button id="generateButton">GENERAR</button>
+        <button id="saveButton">GUARDAR</button>
+        <!-- Integrated Utility Group (Color + Theme will be here) -->
+        <div class="util-group" id="gen-util-group">
+          <button class="color-toggle-btn icon-btn" title="Pistas de color" onclick="toggleColorHints()">🎨</button>
+        </div>
       </div>
     </div>
 
@@ -80,6 +82,10 @@
             
             <button class="color-toggle-btn icon-btn mini-toggle" title="Ver pistas" onclick="toggleColorHints()">🎨</button>
         </div>
+
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
         
         <!-- 2. Professional Stats Dashboard (Below) -->
         <div class="stats-row">
@@ -87,8 +93,16 @@
                 <span class="stat-label">PUNTOS</span>
                 <span id="scoreVal" class="stat-value">0</span>
             </div>
-            <!-- Feedback doubles as Status/Level indicator -->
-            <div id="feedbackDisplay" class="stat-pill feedback">LISTO</div>
+            <div class="stat-pill level">
+                <span class="stat-label">NIVEL</span>
+                <span id="levelVal" class="stat-value">1</span>
+            </div>
+            <!-- Feedback + Time Ring (adaptive) -->
+            <div id="feedbackPill" class="stat-pill feedback timer-pill">
+                <div id="feedbackTimerBar" class="feedback-timer-bar"></div>
+                <span id="feedbackTime" class="feedback-time"></span>
+                <div id="feedbackDisplay">LISTO</div>
+            </div>
         </div>
 
         <!-- 3. Instructions (Bottom Context) -->
