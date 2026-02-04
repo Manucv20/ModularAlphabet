@@ -185,3 +185,139 @@ function transformMat4(v, m) {
     };
 }
 
+/* =========================================
+   5. CAMERA CONTROLS (Orbit + Pinch)
+   ========================================= */
+
+/**
+ * Creates a shared orbit-style camera controller.
+ * Preserves existing behavior: 1-finger/drag rotate, 2-finger pinch zoom,
+ * mouse wheel zoom (locked while rotating), and smooth camera damping.
+ * @param {p5} p - The p5 instance.
+ * @param {object} options - Config overrides.
+ * @returns {object} controller with attach() and updateCamera().
+ */
+function createOrbitController(p, options = {}) {
+    const state = {
+        angleX: options.angleX ?? 0,
+        angleY: options.angleY ?? 0,
+        targetZ: options.startZ ?? 400,
+        minZ: options.minZ ?? 1,
+        maxZ: options.maxZ ?? 1200,
+        rotationSpeed: options.rotationSpeed ?? 0.005,
+        zoomSpeed: options.zoomSpeed ?? 0.5,
+        pinchZoomSpeed: options.pinchZoomSpeed ?? 2,
+        pinchThreshold: options.pinchThreshold ?? 15,
+        damping: options.damping ?? 0.1,
+        allowZoomWhileDragging: options.allowZoomWhileDragging ?? false,
+        lastDist: 0,
+        pinchStarted: false,
+        prevTouchX: undefined,
+        prevTouchY: undefined
+    };
+
+    function clampTargetZ() {
+        state.targetZ = p.constrain(state.targetZ, state.minZ, state.maxZ);
+    }
+
+    function attach(canvas) {
+        if (!canvas) return;
+
+        canvas.touchStarted(() => {
+            if (p.touches.length === 2) {
+                state.lastDist = p.dist(
+                    p.touches[0].x, p.touches[0].y,
+                    p.touches[1].x, p.touches[1].y
+                );
+                state.pinchStarted = false;
+                return false; // Prevent default
+            }
+        });
+
+        canvas.touchMoved(() => {
+            if (p.touches.length === 2) {
+                let currentDist = p.dist(
+                    p.touches[0].x, p.touches[0].y,
+                    p.touches[1].x, p.touches[1].y
+                );
+
+                if (!state.pinchStarted) {
+                    if (Math.abs(currentDist - state.lastDist) > state.pinchThreshold) {
+                        state.pinchStarted = true;
+                        state.lastDist = currentDist; // Reset to prevent zoom jump
+                    }
+                }
+
+                if (state.pinchStarted) {
+                    let delta = state.lastDist - currentDist;
+                    state.targetZ += delta * state.pinchZoomSpeed;
+                    clampTargetZ();
+                    state.lastDist = currentDist;
+                }
+                return false; // Prevent default
+            }
+        });
+
+        p.mouseWheel = function (event) {
+            if (!state.allowZoomWhileDragging && p.mouseIsPressed) return false;
+            state.targetZ += event.delta * state.zoomSpeed;
+            clampTargetZ();
+            return false;
+        };
+    }
+
+    function updateRotationFromInput() {
+        // Mouse drag rotation (Desktop)
+        if (p.mouseIsPressed && p.touches.length === 0) {
+            let dx = p.mouseX - p.pmouseX;
+            let dy = p.mouseY - p.pmouseY;
+            state.angleY += dx * state.rotationSpeed;
+            state.angleX -= dy * state.rotationSpeed;
+        }
+
+        // Single touch drag rotation (Mobile)
+        if (p.touches.length === 1) {
+            let touch = p.touches[0];
+            if (typeof state.prevTouchX !== 'undefined') {
+                let dx = touch.x - state.prevTouchX;
+                let dy = touch.y - state.prevTouchY;
+                state.angleY += dx * state.rotationSpeed;
+                state.angleX -= dy * state.rotationSpeed;
+            }
+            state.prevTouchX = touch.x;
+            state.prevTouchY = touch.y;
+        } else {
+            state.prevTouchX = undefined;
+            state.prevTouchY = undefined;
+        }
+
+        state.angleX = p.constrain(state.angleX, -p.PI / 2, p.PI / 2);
+    }
+
+    function updateCamera(cam) {
+        updateRotationFromInput();
+
+        let radius = state.targetZ;
+        let x = radius * p.sin(state.angleY) * p.cos(state.angleX);
+        let y = radius * p.sin(state.angleX);
+        let z = radius * p.cos(state.angleY) * p.cos(state.angleX);
+
+        if (cam) {
+            let currentPos = p.createVector(cam.eyeX, cam.eyeY, cam.eyeZ);
+            let targetPos = p.createVector(x, y, z);
+            let smoothPos = p5.Vector.lerp(currentPos, targetPos, state.damping);
+
+            cam.setPosition(smoothPos.x, smoothPos.y, smoothPos.z);
+            cam.lookAt(0, 0, 0);
+        }
+    }
+
+    return {
+        state,
+        attach,
+        updateCamera,
+        setTargetZ: (val) => { state.targetZ = val; clampTargetZ(); },
+        setAngles: (ax, ay) => { state.angleX = ax; state.angleY = ay; }
+    };
+}
+
