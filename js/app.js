@@ -232,6 +232,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHomeUiInsets();
     setTimeout(updateHomeUiInsets, 200);
     window.addEventListener('resize', updateHomeUiInsets);
+    window.addEventListener('load', updateHomeUiInsets);
+
+    if (document.fonts && typeof document.fonts.ready === 'object') {
+        document.fonts.ready.then(() => {
+            updateHomeUiInsets();
+        });
+    }
 });
 
 // Global Error Handler for p5 or script failures
