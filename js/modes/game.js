@@ -277,6 +277,18 @@ const gameSketch = (p) => {
                     let vTemp = m1.vel.copy();
                     m1.vel = m2.vel.copy().mult(0.95); // Damping
                     m2.vel = vTemp.mult(0.95);
+
+                    // Count ricochets for error burst cutoff
+                    if (m1.errorFrames > 0) m1.errorHits++;
+                    if (m2.errorFrames > 0) m2.errorHits++;
+                    if (m1.errorFrames > 0 && (m1.errorBounces >= 2 || m1.errorHits >= 3)) {
+                        m1.errorFrames = 0;
+                        m1.vel.mult(0.6);
+                    }
+                    if (m2.errorFrames > 0 && (m2.errorBounces >= 2 || m2.errorHits >= 3)) {
+                        m2.errorFrames = 0;
+                        m2.vel.mult(0.6);
+                    }
                 }
             }
         }
@@ -444,6 +456,8 @@ const gameSketch = (p) => {
             this.clicked = false;
             this.isHovered = false;
             this.errorFrames = 0;
+            this.errorBounces = 0;
+            this.errorHits = 0;
             this.isTargetAnchor = false;
             this.isDespawning = false;
             this.isDead = false;
@@ -461,15 +475,27 @@ const gameSketch = (p) => {
             } else if (this.size < this.targetSize) {
                 this.size = this.p.lerp(this.size, this.targetSize, 0.1);
             }
-            if (this.errorFrames > 0) this.errorFrames--;
+            if (this.errorFrames > 0) {
+                // Keep motion constant during the burst; stop after bounce/hit thresholds
+                this.errorFrames--;
+            }
 
             this.pos.add(this.vel);
             this.rot.add(this.rotVel);
 
             let b = CONFIG.BOUNDS_SIZE;
-            if (this.pos.x > b || this.pos.x < -b) this.vel.x *= -1;
-            if (this.pos.y > b || this.pos.y < -b) this.vel.y *= -1;
-            if (this.pos.z > b || this.pos.z < -b) this.vel.z *= -1;
+            let bounced = false;
+            if (this.pos.x > b || this.pos.x < -b) { this.vel.x *= -1; bounced = true; }
+            if (this.pos.y > b || this.pos.y < -b) { this.vel.y *= -1; bounced = true; }
+            if (this.pos.z > b || this.pos.z < -b) { this.vel.z *= -1; bounced = true; }
+
+            if (bounced && this.errorFrames > 0) {
+                this.errorBounces++;
+                if (this.errorBounces >= 2 || this.errorHits >= 3) {
+                    this.errorFrames = 0;
+                    this.vel.mult(0.75);
+                }
+            }
         }
 
         draw() {
@@ -568,8 +594,11 @@ const gameSketch = (p) => {
         }
 
         setError() {
-            this.errorFrames = 60;
-            this.vel.mult(3);
+            this.errorFrames = 50;
+            this.vel.mult(2.4);
+            this.vel.limit(7);
+            this.errorBounces = 0;
+            this.errorHits = 0;
         }
     }
 
